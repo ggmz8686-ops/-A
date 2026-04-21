@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>评论拱火大师 - 单文件版</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: #171717;
+        background:
+          linear-gradient(135deg, rgba(229, 252, 95, 0.45), transparent 30%),
+          linear-gradient(225deg, rgba(255, 92, 92, 0.32), transparent 35%),
+          #f7f7f2;
+        font-family:
+          "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      button,
+      textarea,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 30px 0;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #171717;
+        border-radius: 8px;
+        background: #e5fc5f;
+        padding: 8px 12px;
+        font-weight: 900;
+        box-shadow: 4px 4px 0 #171717;
+      }
+
+      h1 {
+        margin: 24px 0 10px;
+        max-width: 880px;
+        font-size: clamp(38px, 7vw, 78px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 740px;
+        margin: 0 0 24px;
+        color: #3c3c36;
+        font-size: 18px;
+        line-height: 1.7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 0.9fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        border: 2px solid #171717;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 8px 8px 0 #171717;
+        padding: 20px;
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 170px;
+        resize: vertical;
+        border: 2px solid #171717;
+        border-radius: 8px;
+        padding: 14px;
+        background: #fffdf5;
+        line-height: 1.6;
+        outline: none;
+      }
+
+      textarea:focus,
+      input:focus,
+      select:focus {
+        border-color: #ef3d3d;
+        box-shadow: 0 0 0 3px rgba(239, 61, 61, 0.15);
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      label,
+      .section-label {
+        font-weight: 900;
+      }
+
+      input,
+      select {
+        min-width: 0;
+        border: 2px solid #171717;
+        border-radius: 8px;
+        padding: 10px 12px;
+        background: #ffffff;
+        outline: none;
+      }
+
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .choice-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .choice {
+        min-height: 70px;
+        border: 2px solid #171717;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 10px;
+        text-align: left;
+        transition:
+          transform 0.16s ease,
+          background 0.16s ease,
+          box-shadow 0.16s ease;
+      }
+
+      .choice:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 #171717;
+      }
+
+      .choice.active {
+        background: #ff5c5c;
+        box-shadow: 4px 4px 0 #171717;
+      }
+
+      .choice strong,
+      .choice span {
+        display: block;
+        font-weight: 900;
+      }
+
+      .choice small {
+        display: block;
+        margin-top: 4px;
+        opacity: 0.76;
+        line-height: 1.35;
+      }
+
+      .heat {
+        border: 2px solid #171717;
+        border-radius: 8px;
+        background: #e5fc5f;
+        padding: 14px;
+        margin-top: 16px;
+      }
+
+      .heat-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: #ef3d3d;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .primary,
+      .secondary,
+      .copy-btn,
+      .example {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 2px solid #171717;
+        border-radius: 8px;
+        padding: 11px 14px;
+        font-weight: 900;
+      }
+
+      .primary {
+        flex: 1;
+        background: #171717;
+        color: #ffffff;
+      }
+
+      .secondary,
+      .copy-btn,
+      .example {
+        background: #ffffff;
+        color: #171717;
+      }
+
+      .examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .example {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .status {
+        min-height: 24px;
+        margin-top: 12px;
+        color: #5b5b51;
+        font-weight: 800;
+      }
+
+      .result-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .empty {
+        display: grid;
+        place-items: center;
+        min-height: 500px;
+        border: 2px dashed #171717;
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        color: #3c3c36;
+        font-weight: 800;
+      }
+
+      .result-card {
+        border: 2px solid #171717;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 14px;
+      }
+
+      .result-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .result-head strong {
+        font-size: 18px;
+      }
+
+      .copy-btn {
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+
+      .result-text {
+        margin: 14px 0 10px;
+        font-size: 20px;
+        line-height: 1.65;
+        font-weight: 850;
+      }
+
+      .read-line {
+        margin: 0;
+        color: #5b5b51;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 920px) {
+        .grid,
+        .two {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .shell {
+          width: min(100% - 18px, 1180px);
+          padding: 18px 0;
+        }
+
+        .panel {
+          padding: 14px;
+          box-shadow: 5px 5px 0 #171717;
+        }
+
+        .choice-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <div class="badge">🔥 评论拱火大师</div>
+      <h1>给评论区配一条刚刚好带刺的回复。</h1>
+      <p class="subtitle">
+        单文件可交互版。输入一句原话、观点或评论语境，生成三条不复读原话的评论回复。
+      </p>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-title">评论语境</div>
+          <textarea id="sourceText">他说这个项目很简单，两天就能做完。</textarea>
+
+          <div class="field">
+            <label for="context">场景</label>
+            <input id="context" value="朋友聊天，想调侃但别撕破脸" />
+          </div>
+
+          <div class="two">
+            <div class="field">
+              <label for="direction">语言方向</label>
+              <select id="direction">
+                <option value="zh_zh">中中互译</option>
+                <option value="zh_en">中译英</option>
+                <option value="en_zh">英译中</option>
+                <option value="en_en">英英互译</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="apiMode">生成方式</label>
+              <select id="apiMode">
+                <option value="api">调用本机 API</option>
+                <option value="local">离线生成</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" id="apiField">
+            <label for="apiUrl">API 地址</label>
+            <input id="apiUrl" value="http://localhost:8791/api/translate" />
+          </div>
+
+          <div class="field">
+            <div class="section-label">毒舌风格</div>
+            <div class="choice-grid" id="styleGrid"></div>
+          </div>
+
+          <div class="heat">
+            <div class="heat-head">
+              <strong>毒度</strong>
+              <strong><span id="heatValue">3</span>/5</strong>
+            </div>
+            <input id="heat" type="range" min="1" max="5" value="3" />
+            <div id="heatCopy">锐利但不撕破脸</div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="generateBtn">开始拱火</button>
+            <button class="secondary" id="clearBtn">清空</button>
+          </div>
+
+          <div class="examples" id="examples"></div>
+          <div class="status" id="status"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">毒舌译文</div>
+          <div class="empty" id="emptyState">先来一句原话，火候我给你看着。</div>
+          <div class="result-stack" id="results"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const styles = [
+        { id: "yinYang", label: "阴阳怪气", helper: "表面客气，背后一刀" },
+        { id: "witty", label: "聪明嘴替", helper: "机智、精确、不低俗" },
+        { id: "workplace", label: "职场体面攻击", helper: "邮件能发，心里有火" },
+        { id: "comment", label: "评论区锐评", helper: "像高赞网友路过" },
+        { id: "british", label: "英式冷嘲", helper: "克制到让人冒汗" },
+        { id: "american", label: "美式 Roast", helper: "直接、夸张、带节奏" }
+      ];
+
+      const examples = [
+        "你这个方案还需要再优化一下。",
+        "他说自己很懂这个行业。",
+        "I think this idea needs more work.",
+        "谢谢你的建议，我会认真考虑。"
+      ];
+
+      let activeStyle = "yinYang";
+
+      const sourceText = document.querySelector("#sourceText");
+      const contextInput = document.querySelector("#context");
+      const directionInput = document.querySelector("#direction");
+      const apiMode = document.querySelector("#apiMode");
+      const apiField = document.querySelector("#apiField");
+      const apiUrl = document.querySelector("#apiUrl");
+      const heat = document.querySelector("#heat");
+      const heatValue = document.querySelector("#heatValue");
+      const heatCopy = document.querySelector("#heatCopy");
+      const styleGrid = document.querySelector("#styleGrid");
+      const examplesEl = document.querySelector("#examples");
+      const results = document.querySelector("#results");
+      const emptyState = document.querySelector("#emptyState");
+      const statusEl = document.querySelector("#status");
+
+      function renderStyles() {
+        styleGrid.innerHTML = "";
+        styles.forEach((item) => {
+          const button = document.createElement("button");
+          button.className = item.id === activeStyle ? "choice active" : "choice";
+          button.type = "button";
+          button.innerHTML = `<span>${item.label}</span><small>${item.helper}</small>`;
+          button.addEventListener("click", () => {
+            activeStyle = item.id;
+            renderStyles();
+          });
+          styleGrid.appendChild(button);
+        });
+      }
+
+      function renderExamples() {
+        examplesEl.innerHTML = "";
+        examples.forEach((item) => {
+          const button = document.createElement("button");
+          button.className = "example";
+          button.type = "button";
+          button.textContent = item;
+          button.addEventListener("click", () => {
+            sourceText.value = item;
+            generate();
+          });
+          examplesEl.appendChild(button);
+        });
+      }
+
+      function updateHeatCopy() {
+        heatValue.textContent = heat.value;
+        heatCopy.textContent =
+          Number(heat.value) <= 2
+            ? "点到为止"
+            : Number(heat.value) === 3
+              ? "锐利但不撕破脸"
+              : "熟人局请坐稳";
+      }
+
+      function localGenerate(payload) {
+        const englishOut = payload.direction === "zh_en" || payload.direction === "en_en";
+
+        if (englishOut) {
+          return [
+            {
+              label: "轻阴阳",
+              text: "Bold choice. The confidence really did arrive before the evidence.",
+              read: "用轻描淡写制造反讽。"
+            },
+            {
+              label: "精准锐评",
+              text: "A fascinating case study in ambition sprinting ahead while the details are still looking for their shoes.",
+              read: "攻击行为表现，不攻击身份。"
+            },
+            {
+              label: "高级毒舌",
+              text: "Nothing says strategic clarity like volunteering reality for a stress test.",
+              read: "把问题转成社交场景里的高级吐槽。"
+            }
+          ];
+        }
+
+        return [
+          {
+            label: "轻阴阳",
+            text: "听起来确实很有把现实当草稿纸的勇气。",
+            read: "表面认可，实际把锅递回去。"
+          },
+          {
+            label: "精准锐评",
+            text: "自信先到场，细节还在路上，这场面多少有点熟悉。",
+            read: "从话术本身切入，够损但不脏。"
+          },
+          {
+            label: "高级毒舌",
+            text:
+              Number(payload.heat) >= 4
+                ? "你这操作很有想法，主要是想法和结果彼此不太熟。"
+                : "你这思路挺特别，特别在它真的很努力地避开了重点。",
+            read: "把攻击点放在行为和结果上。"
+          }
+        ];
+      }
+
+      function renderResults(items) {
+        results.innerHTML = "";
+        emptyState.hidden = items.length > 0;
+        items.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = "result-card";
+          card.innerHTML = `
+            <div class="result-head">
+              <strong>${item.label}</strong>
+              <button class="copy-btn" type="button">复制</button>
+            </div>
+            <p class="result-text"></p>
+            <p class="read-line"></p>
+          `;
+          card.querySelector(".result-text").textContent = item.text;
+          card.querySelector(".read-line").textContent = item.read || "";
+          card.querySelector(".copy-btn").addEventListener("click", async () => {
+            await navigator.clipboard.writeText(item.text);
+            statusEl.textContent = `已复制：${item.label}`;
+          });
+          results.appendChild(card);
+        });
+      }
+
+      async function generate() {
+        const payload = {
+          text: sourceText.value.trim(),
+          context: contextInput.value.trim(),
+          direction: directionInput.value,
+          style: activeStyle,
+          heat: Number(heat.value)
+        };
+
+        if (!payload.text) {
+          statusEl.textContent = "先输入一句原话，不然只能阴阳空气。";
+          return;
+        }
+
+        statusEl.textContent = "正在拱火...";
+
+        if (apiMode.value === "api") {
+          try {
+            const urls = [
+              apiUrl.value.trim(),
+              "http://127.0.0.1:8791/api/translate",
+              "http://localhost:8791/api/translate"
+            ].filter((item, index, list) => item && list.indexOf(item) === index);
+
+            let data = null;
+            let lastError = null;
+
+            for (const url of urls) {
+              try {
+                const response = await fetch(url, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload)
+                });
+                data = await response.json();
+                if (!response.ok) throw new Error(data?.error?.message || "API 调用失败");
+                break;
+              } catch (error) {
+                lastError = error;
+                data = null;
+              }
+            }
+
+            if (!data) throw lastError || new Error("API 调用失败");
+            renderResults((data.result && data.result.variants) || []);
+            statusEl.textContent = "模型输出完成。";
+            return;
+          } catch (error) {
+            statusEl.textContent = `API 不通，已用离线生成：${error.message}`;
+          }
+        } else {
+          statusEl.textContent = "离线生成完成。";
+        }
+
+        renderResults(localGenerate(payload));
+      }
+
+      document.querySelector("#generateBtn").addEventListener("click", generate);
+      document.querySelector("#clearBtn").addEventListener("click", () => {
+        sourceText.value = "";
+        results.innerHTML = "";
+        emptyState.hidden = false;
+        statusEl.textContent = "";
+      });
+
+      apiMode.addEventListener("change", () => {
+        apiField.hidden = apiMode.value !== "api";
+      });
+
+      heat.addEventListener("input", updateHeatCopy);
+
+      renderStyles();
+      renderExamples();
+      updateHeatCopy();
+    </script>
+  </body>
+</html>

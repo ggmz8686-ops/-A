@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>产品练习合集</title>
+    <meta
+      name="description"
+      content="产品原型、PRD、研究报告与数据分析材料合集。"
+    />
+    <style>
+      :root {
+        --ink: #121417;
+        --muted: #626a73;
+        --line: #d9dee6;
+        --paper: #f7f6f1;
+        --surface: #ffffff;
+        --blue: #2458e6;
+        --green: #0b7a5b;
+        --coral: #d84f43;
+        --yellow: #f3c84b;
+        --shadow: 0 22px 52px rgba(18, 20, 23, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family:
+          "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui,
+          -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid rgba(18, 20, 23, 0.1);
+        background: rgba(247, 246, 241, 0.88);
+        backdrop-filter: blur(16px);
+      }
+
+      .nav {
+        width: min(1180px, calc(100% - 32px));
+        height: 68px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, var(--blue) 0 48%, transparent 48%),
+          linear-gradient(315deg, var(--yellow) 0 47%, var(--surface) 47%);
+        box-shadow: 3px 3px 0 var(--ink);
+        flex: 0 0 auto;
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 16px;
+      }
+
+      .brand span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .nav-links a {
+        padding: 9px 12px;
+        border-radius: 8px;
+      }
+
+      .nav-links a:hover {
+        color: var(--ink);
+        background: rgba(18, 20, 23, 0.06);
+      }
+
+      main {
+        overflow: hidden;
+      }
+
+      .hero {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 22px;
+      }
+
+      .intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.72fr);
+        gap: 34px;
+        align-items: center;
+        min-height: 360px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--surface);
+        padding: clamp(26px, 4vw, 46px);
+        box-shadow: 7px 7px 0 var(--ink);
+      }
+
+      .intro-main {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .eyebrow {
+        width: fit-content;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--yellow);
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 9em;
+        font-size: clamp(42px, 7vw, 82px);
+        line-height: 1;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+        word-break: break-all;
+      }
+
+      .intro p {
+        margin: 0;
+        max-width: 640px;
+        color: #343941;
+        font-size: 17px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+        word-break: break-all;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .profile-card {
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 22px;
+        background: #f4f4f0;
+        box-shadow: 5px 5px 0 rgba(18, 20, 23, 0.2);
+      }
+
+      .profile-card h2 {
+        margin: 0 0 10px;
+        font-size: clamp(30px, 4vw, 46px);
+      }
+
+      .profile-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 18px;
+      }
+
+      .profile-meta span {
+        border: 1px solid rgba(18, 20, 23, 0.18);
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #fff;
+        color: #30343a;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .contact-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .contact-list a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 42px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 12px;
+        background: #fff;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+
+      .contact-list a span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 16px;
+        background: var(--ink);
+        color: #fff;
+        font-weight: 800;
+        box-shadow: 3px 3px 0 rgba(18, 20, 23, 0.28);
+      }
+
+      .button.secondary {
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .section {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 54px 0;
+      }
+
+      .about-section {
+        padding-top: 30px;
+      }
+
+      .about-panel {
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 5px 5px 0 rgba(18, 20, 23, 0.82);
+        padding: clamp(22px, 4vw, 34px);
+      }
+
+      .about-panel p {
+        margin: 0;
+        max-width: 980px;
+        color: #343941;
+        font-size: 16px;
+        line-height: 1.9;
+      }
+
+      .skills-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 46px);
+        letter-spacing: 0;
+      }
+
+      .section-head p {
+        max-width: 460px;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .project-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tool-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 14px;
+        background: var(--yellow);
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 900;
+        box-shadow: 3px 3px 0 rgba(18, 20, 23, 0.32);
+      }
+
+      .tool-button:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 rgba(18, 20, 23, 0.32);
+      }
+
+      .project-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        perspective: 1200px;
+      }
+
+      .project-card,
+      .doc-card {
+        position: relative;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 5px 5px 0 rgba(18, 20, 23, 0.82);
+        overflow: hidden;
+      }
+
+      .project-card {
+        transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+        transform-style: preserve-3d;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          border-color 180ms ease;
+      }
+
+      .project-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          circle at var(--mx, 50%) var(--my, 50%),
+          rgba(243, 200, 75, 0.32),
+          transparent 26rem
+        );
+        opacity: 0;
+        transition: opacity 180ms ease;
+        z-index: 1;
+      }
+
+      .project-card:hover,
+      .project-card.is-featured {
+        box-shadow: 9px 9px 0 rgba(18, 20, 23, 0.82);
+      }
+
+      .project-card:hover::before,
+      .project-card.is-featured::before {
+        opacity: 1;
+      }
+
+      .project-card.is-featured {
+        border-color: var(--blue);
+        animation: featured-pop 680ms ease;
+      }
+
+      @keyframes featured-pop {
+        0% {
+          transform: scale(1);
+        }
+        42% {
+          transform: scale(1.025);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .project-shot {
+        height: 290px;
+        border-bottom: 1px solid var(--ink);
+        background: #d7d9da;
+        overflow: hidden;
+      }
+
+      .project-shot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .project-card:nth-child(3) .project-shot img {
+        object-position: center top;
+      }
+
+      .project-card.wide {
+        grid-column: 1 / -1;
+      }
+
+      .split-shot {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1px;
+        background: var(--ink);
+      }
+
+      .project-body,
+      .doc-card {
+        position: relative;
+        z-index: 2;
+        padding: 20px;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .tag {
+        border: 1px solid rgba(18, 20, 23, 0.18);
+        border-radius: 999px;
+        padding: 5px 9px;
+        color: #30343a;
+        background: #f4f4f0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .project-body h3,
+      .doc-card h3 {
+        margin: 0 0 9px;
+        font-size: 22px;
+        letter-spacing: 0;
+      }
+
+      .project-body p,
+      .doc-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .card-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .mini-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-weight: 800;
+        background: #fff;
+      }
+
+      .mini-button.primary {
+        color: #fff;
+        background: var(--blue);
+      }
+
+      .preview-dialog {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 22px;
+        background: rgba(18, 20, 23, 0.62);
+      }
+
+      .preview-dialog.is-open {
+        display: flex;
+      }
+
+      .preview-shell {
+        width: min(1180px, 100%);
+        height: min(760px, calc(100vh - 44px));
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 8px 8px 0 rgba(18, 20, 23, 0.72);
+        overflow: hidden;
+      }
+
+      .preview-bar {
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--ink);
+        padding: 0 12px 0 16px;
+        background: #f4f4f0;
+      }
+
+      .preview-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 900;
+      }
+
+      .preview-actions {
+        display: flex;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+
+      .icon-button {
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .preview-frame {
+        width: 100%;
+        height: calc(100% - 54px);
+        border: 0;
+        background: #fff;
+      }
+
+      .doc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .doc-card {
+        display: flex;
+        min-height: 250px;
+        flex-direction: column;
+      }
+
+      .doc-type {
+        width: fit-content;
+        margin-bottom: 28px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 7px 10px;
+        color: #fff;
+        background: var(--green);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .doc-card:nth-child(2) .doc-type,
+      .doc-card:nth-child(5) .doc-type {
+        background: var(--coral);
+      }
+
+      .doc-card:nth-child(3) .doc-type {
+        background: var(--blue);
+      }
+
+      .doc-card .card-actions {
+        margin-top: auto;
+        padding-top: 20px;
+      }
+
+      footer {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 34px 0 46px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .nav {
+          height: auto;
+          padding: 14px 0;
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .nav-links {
+          width: 100%;
+          overflow-x: auto;
+          padding-bottom: 2px;
+        }
+
+        .intro {
+          grid-template-columns: 1fr;
+          min-height: auto;
+        }
+
+        .project-grid,
+        .doc-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .project-card {
+          transform: none !important;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .hero,
+        .section {
+          width: min(100% - 22px, 1180px);
+        }
+
+        .intro {
+          padding: 24px;
+          box-shadow: 4px 4px 0 var(--ink);
+        }
+
+        h1 {
+          max-width: 100%;
+          font-size: clamp(34px, 10vw, 39px);
+          line-height: 1.08;
+        }
+
+        .profile-card {
+          padding: 18px;
+        }
+
+        .contact-list a {
+          align-items: flex-start;
+          flex-direction: column;
+          justify-content: center;
+          gap: 2px;
+          min-height: 58px;
+        }
+
+        .split-shot {
+          grid-template-columns: 1fr;
+        }
+
+        .project-shot {
+          height: 220px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="主导航">
+        <a class="brand" href="#top" aria-label="回到顶部">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>
+            <strong>产品练习合集</strong>
+            <span>Prototype / PRD / Research</span>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="#about">关于</a>
+          <a href="#projects">Demo</a>
+          <a href="#documents">文档</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="intro">
+          <div class="intro-main">
+            <span class="eyebrow">产品练习合集</span>
+            <h1 id="hero-title">产品练习<br />合集</h1>
+            <p>
+              这里收纳了智能学习助手、评论生成工具、课程表移动端原型，以及
+              eVTOL、学习助手、课程表相关的产品文档与研究资料。
+            </p>
+            <div class="hero-actions">
+              <a class="button" href="#projects">查看 Demo</a>
+              <a class="button secondary" href="#about">个人简介</a>
+            </div>
+          </div>
+
+          <aside class="profile-card" aria-label="联系方式">
+            <h2>王钰琪</h2>
+            <div class="profile-meta">
+              <span>女</span>
+              <span>在校生</span>
+              <span>大连理工大学</span>
+              <span>工业设计大三</span>
+            </div>
+            <div class="contact-list">
+              <a href="tel:18242078725"><span>电话</span>18242078725</a>
+              <a href="mailto:ggmz86@qq.com"><span>邮箱</span>ggmz86@qq.com</a>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section about-section" id="about" aria-labelledby="about-title">
+        <div class="section-head">
+          <h2 id="about-title">个人简介</h2>
+          <p>目标方向：产品经理 / 用户研究。</p>
+        </div>
+        <div class="about-panel">
+          <p>
+            大连理工大学工业设计大三本科在读，目标产品经理 / 用户研究方向，具备从用户研究、需求分析、竞品拆解、产品定义到原型方案输出的完整实践经验。熟悉用户访谈、问卷设计、用户旅程图、KANO 需求分级、二维矩阵分析、PRD 撰写等方法，能够将用户洞察转化为清晰的功能结构、交互流程与落地需求。长期关注互联网产品与 AI 工具，曾完成学习管理工具、医疗 eVTOL 用户研究、AI 图像生成 Web MVP 等项目，具备一定技术理解和 AI 辅助开发协作经验。
+          </p>
+          <div class="skills-row" aria-label="能力标签">
+            <span class="tag">用户研究</span>
+            <span class="tag">需求分析</span>
+            <span class="tag">竞品拆解</span>
+            <span class="tag">产品定义</span>
+            <span class="tag">原型方案</span>
+            <span class="tag">PRD 撰写</span>
+            <span class="tag">AI 工具</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="projects" aria-labelledby="projects-title">
+        <div class="section-head">
+          <h2 id="projects-title">可交互 Demo</h2>
+          <div class="project-tools">
+            <button class="tool-button" type="button" id="randomDemo">随机看看</button>
+          </div>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card" data-demo="demo_智能学习助手.html" data-title="智能学习助手">
+            <div class="project-shot">
+              <img src="assets/previews/smart-study.png" alt="智能学习助手 Web 原型截图" />
+            </div>
+            <div class="project-body">
+              <div class="tag-row">
+                <span class="tag">Web 原型</span>
+                <span class="tag">学习任务</span>
+                <span class="tag">知识问答</span>
+              </div>
+              <h3>智能学习助手</h3>
+              <p>围绕学习任务、练习、错题与计划管理设计的 Web 端工作台原型。</p>
+              <div class="card-actions">
+                <a class="mini-button primary" href="demo_智能学习助手.html" target="_blank" rel="noreferrer">打开 Demo</a>
+                <button class="mini-button preview-trigger" type="button" data-preview="demo_智能学习助手.html" data-title="智能学习助手">站内预览</button>
+                <a class="mini-button" href="PRD_智能学习助手Web端_V3_修订版.docx">下载 PRD</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-demo="demo_评论拱火大师.html" data-title="评论拱火大师">
+            <div class="project-shot">
+              <img src="assets/previews/comment-ignite.png" alt="评论拱火大师 Web 原型截图" />
+            </div>
+            <div class="project-body">
+              <div class="tag-row">
+                <span class="tag">单页工具</span>
+                <span class="tag">文本生成</span>
+                <span class="tag">语气转换</span>
+              </div>
+              <h3>评论拱火大师</h3>
+              <p>把评论语境、语气方向和生成方式组合成可操作的文本生成流程。</p>
+              <div class="card-actions">
+                <a class="mini-button primary" href="demo_评论拱火大师.html" target="_blank" rel="noreferrer">打开 Demo</a>
+                <button class="mini-button preview-trigger" type="button" data-preview="demo_评论拱火大师.html" data-title="评论拱火大师">站内预览</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card wide" data-demo="demo_课程表(2).html" data-title="课程笔记与课程表">
+            <div class="project-shot split-shot">
+              <img src="assets/previews/course-notes.png" alt="课程笔记移动端原型截图" />
+              <img src="assets/previews/course-schedule.png" alt="课程表移动端原型截图" />
+            </div>
+            <div class="project-body">
+              <div class="tag-row">
+                <span class="tag">移动端原型</span>
+                <span class="tag">课程笔记</span>
+                <span class="tag">课程表</span>
+                <span class="tag">学习闭环</span>
+              </div>
+              <h3>课程笔记与课程表</h3>
+              <p>把课程周视图、任务、复习记录、直播笔记和相关文件整合成一组移动端学习管理原型。</p>
+              <div class="card-actions">
+                <a class="mini-button primary" href="demo_课程表(1).html" target="_blank" rel="noreferrer">打开课程笔记</a>
+                <a class="mini-button primary" href="demo_课程表(2).html" target="_blank" rel="noreferrer">打开课程表</a>
+                <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(1).html" data-title="课程笔记">预览笔记</button>
+                <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(2).html" data-title="课程表">预览课程表</button>
+                <a class="mini-button" href="课程表_产品需求-解决方案总表.xlsx">下载方案表</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="documents" aria-labelledby="documents-title">
+        <div class="section-head">
+          <h2 id="documents-title">产品与研究材料</h2>
+          <p>文档类文件会以浏览器下载或系统默认程序打开的方式访问。</p>
+        </div>
+
+        <div class="doc-grid">
+          <article class="doc-card">
+            <span class="doc-type">PPTX</span>
+            <h3>eVTOL 产品研究与设计报告</h3>
+            <p>面向低空出行/医疗场景的产品研究、方案设计与表达材料。</p>
+            <div class="card-actions">
+              <a class="mini-button primary" href="eVTOL产品研究与设计报告.pptx">打开材料</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-type">DOCX</span>
+            <h3>医疗 eVTOL PRD</h3>
+            <p>医疗 eVTOL 方向的产品需求文档，可作为场景分析和功能定义材料。</p>
+            <div class="card-actions">
+              <a class="mini-button primary" href="PRD_医疗eVTOL.docx">打开材料</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-type">DOCX</span>
+            <h3>智能学习助手 PRD</h3>
+            <p>与智能学习助手 demo 配套的 Web 端需求梳理和修订版文档。</p>
+            <div class="card-actions">
+              <a class="mini-button primary" href="PRD_智能学习助手Web端_V3_修订版.docx">打开材料</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-type">DOCX</span>
+            <h3>感性工学数据分析</h3>
+            <p>围绕用户感知、体验指标或样本数据进行分析的研究型文档。</p>
+            <div class="card-actions">
+              <a class="mini-button primary" href="感性工学数据分析.docx">打开材料</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-type">XLSX</span>
+            <h3>课程表产品需求与解决方案</h3>
+            <p>课程表产品的需求、问题、方案与功能拆解表。</p>
+            <div class="card-actions">
+              <a class="mini-button primary" href="课程表_产品需求-解决方案总表.xlsx">打开材料</a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div class="preview-dialog" id="previewDialog" aria-hidden="true">
+      <div class="preview-shell" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <div class="preview-bar">
+          <div class="preview-title" id="previewTitle">Demo 预览</div>
+          <div class="preview-actions">
+            <a class="mini-button" id="previewOpen" href="#" target="_blank" rel="noreferrer">打开</a>
+            <button class="icon-button" type="button" id="previewClose" aria-label="关闭预览">×</button>
+          </div>
+        </div>
+        <iframe class="preview-frame" id="previewFrame" title="Demo 预览"></iframe>
+      </div>
+    </div>
+
+    <footer>
+      <span>产品练习合集首页：index.html。最后整理时间：2026-04-21。</span>
+    </footer>
+    <script>
+      const projectCards = Array.from(document.querySelectorAll(".project-card"));
+      const previewDialog = document.getElementById("previewDialog");
+      const previewFrame = document.getElementById("previewFrame");
+      const previewTitle = document.getElementById("previewTitle");
+      const previewOpen = document.getElementById("previewOpen");
+      const previewClose = document.getElementById("previewClose");
+      const randomDemo = document.getElementById("randomDemo");
+
+      projectCards.forEach((card) => {
+        card.addEventListener("pointermove", (event) => {
+          if (window.matchMedia("(max-width: 900px)").matches) return;
+          const rect = card.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const rx = ((0.5 - y / rect.height) * 5).toFixed(2);
+          const ry = ((x / rect.width - 0.5) * 6).toFixed(2);
+
+          card.style.setProperty("--mx", `${(x / rect.width) * 100}%`);
+          card.style.setProperty("--my", `${(y / rect.height) * 100}%`);
+          card.style.setProperty("--rx", `${rx}deg`);
+          card.style.setProperty("--ry", `${ry}deg`);
+        });
+
+        card.addEventListener("pointerleave", () => {
+          card.style.setProperty("--rx", "0deg");
+          card.style.setProperty("--ry", "0deg");
+        });
+      });
+
+      function openPreview(src, title) {
+        previewTitle.textContent = title || "Demo 预览";
+        previewFrame.src = src;
+        previewOpen.href = src;
+        previewDialog.classList.add("is-open");
+        previewDialog.setAttribute("aria-hidden", "false");
+        previewClose.focus();
+      }
+
+      function closePreview() {
+        previewDialog.classList.remove("is-open");
+        previewDialog.setAttribute("aria-hidden", "true");
+        previewFrame.src = "about:blank";
+      }
+
+      document.querySelectorAll(".preview-trigger").forEach((button) => {
+        button.addEventListener("click", () => {
+          openPreview(button.dataset.preview, button.dataset.title);
+        });
+      });
+
+      previewClose.addEventListener("click", closePreview);
+      previewDialog.addEventListener("click", (event) => {
+        if (event.target === previewDialog) closePreview();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && previewDialog.classList.contains("is-open")) {
+          closePreview();
+        }
+      });
+
+      randomDemo.addEventListener("click", () => {
+        const index = Math.floor(Math.random() * projectCards.length);
+        const card = projectCards[index];
+        projectCards.forEach((item) => item.classList.remove("is-featured"));
+        card.classList.add("is-featured");
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => {
+          openPreview(card.dataset.demo, card.dataset.title);
+        }, 520);
+      });
+    </script>
+  </body>
+</html>
