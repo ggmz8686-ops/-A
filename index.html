@@ -480,6 +480,19 @@
         margin-top: 18px;
       }
 
+      .resource-block {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(18, 20, 23, 0.1);
+      }
+
+      .resource-title {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
       .mini-button {
         display: inline-flex;
         align-items: center;
@@ -844,7 +857,13 @@
               <div class="card-actions">
                 <a class="mini-button primary" href="demo_智能学习助手.html" target="_blank" rel="noreferrer">打开 Demo</a>
                 <button class="mini-button preview-trigger" type="button" data-preview="demo_智能学习助手.html" data-title="智能学习助手">站内预览</button>
-                <a class="mini-button" href="PRD_智能学习助手Web端_V3_修订版.docx">下载 PRD</a>
+              </div>
+              <div class="resource-block">
+                <p class="resource-title">相关资料</p>
+                <div class="card-actions">
+                  <a class="mini-button download-button" href="PRD_智能学习助手Web端_V3_修订版.docx" download>下载 PRD</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="PRD_智能学习助手Web端_V3_修订版.docx" data-title="智能学习助手 PRD" data-kind="document">站内预览</button>
+                </div>
               </div>
             </div>
           </article>
@@ -887,7 +906,19 @@
                 <a class="mini-button primary" href="demo_课程表(2).html" target="_blank" rel="noreferrer">打开课程表</a>
                 <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(1).html" data-title="课程笔记">预览笔记</button>
                 <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(2).html" data-title="课程表">预览课程表</button>
-                <a class="mini-button" href="课程表_产品需求-解决方案总表.xlsx">下载方案表</a>
+              </div>
+              <div class="resource-block">
+                <p class="resource-title">相关资料</p>
+                <div class="card-actions">
+                  <a class="mini-button download-button" href="课程表用户研究.pptx" download>下载用户研究</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表用户研究.pptx" data-title="课程表用户研究" data-kind="document">站内预览</button>
+                  <a class="mini-button download-button" href="课程表需求-功能对应分析表.xlsx" download>下载需求分析表</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表需求-功能对应分析表.xlsx" data-title="课程表需求-功能对应分析表" data-kind="document">站内预览</button>
+                  <a class="mini-button download-button" href="课程表_产品需求-解决方案总表.xlsx" download>下载方案总表</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表_产品需求-解决方案总表.xlsx" data-title="课程表产品需求与解决方案" data-kind="document">站内预览</button>
+                  <a class="mini-button download-button" href="课程表App竞品分析报告_超级课程表_vs_GoogleCalendar.docx" download>下载竞品报告</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表App竞品分析报告_超级课程表_vs_GoogleCalendar.docx" data-title="课程表 App 竞品分析报告" data-kind="document">站内预览</button>
+                </div>
               </div>
             </div>
           </article>
@@ -896,8 +927,8 @@
 
       <section class="section" id="documents" aria-labelledby="documents-title">
         <div class="section-head">
-          <h2 id="documents-title">产品与研究材料</h2>
-          <p>文档类文件会以浏览器下载或系统默认程序打开的方式访问。</p>
+          <h2 id="documents-title">其他产品与研究材料</h2>
+          <p>没有对应 demo 的材料集中放在这里，课程表和学习助手相关资料已并入项目卡片。</p>
         </div>
 
         <div class="doc-grid">
@@ -923,16 +954,6 @@
 
           <article class="doc-card">
             <span class="doc-type">DOCX</span>
-            <h3>智能学习助手 PRD</h3>
-            <p>与智能学习助手 demo 配套的 Web 端需求梳理和修订版文档。</p>
-            <div class="card-actions">
-              <a class="mini-button download-button" href="PRD_智能学习助手Web端_V3_修订版.docx" download>下载</a>
-              <button class="mini-button preview-trigger" type="button" data-preview="PRD_智能学习助手Web端_V3_修订版.docx" data-title="智能学习助手 PRD" data-kind="document">站内预览</button>
-            </div>
-          </article>
-
-          <article class="doc-card">
-            <span class="doc-type">DOCX</span>
             <h3>感性工学数据分析</h3>
             <p>围绕用户感知、体验指标或样本数据进行分析的研究型文档。</p>
             <div class="card-actions">
@@ -941,15 +962,6 @@
             </div>
           </article>
 
-          <article class="doc-card">
-            <span class="doc-type">XLSX</span>
-            <h3>课程表产品需求与解决方案</h3>
-            <p>课程表产品的需求、问题、方案与功能拆解表。</p>
-            <div class="card-actions">
-              <a class="mini-button download-button" href="课程表_产品需求-解决方案总表.xlsx" download>下载</a>
-              <button class="mini-button preview-trigger" type="button" data-preview="课程表_产品需求-解决方案总表.xlsx" data-title="课程表产品需求与解决方案" data-kind="document">站内预览</button>
-            </div>
-          </article>
         </div>
       </section>
     </main>

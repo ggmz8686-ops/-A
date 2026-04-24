@@ -1,1 +1,4 @@
 assets/previews/portfolio-*.png
+~$*.docx
+tmp_*.xlsx
+tmp_*.pptx
