@@ -370,6 +370,7 @@
       }
 
       .project-card:hover,
+      .doc-card:hover,
       .project-card.is-featured {
         transform: translateY(-4px);
         box-shadow: 9px 9px 0 rgba(18, 20, 23, 0.82);
@@ -597,7 +598,28 @@
       .tool-button:hover,
       .icon-button:hover {
         transform: scale(1.04);
-        box-shadow: 5px 5px 0 rgba(18, 20, 23, 0.28);
+      }
+
+      .button:hover {
+        background: #20262d;
+      }
+
+      .button.secondary:hover,
+      .mini-button:hover,
+      .icon-button:hover {
+        background: #f4f4f0;
+      }
+
+      .mini-button.primary:hover {
+        background: #1f4fd1;
+      }
+
+      .mini-button.download-button:hover {
+        background: #09684d;
+      }
+
+      .tool-button:hover {
+        background: #e9bf3f;
       }
 
       .button:active,
@@ -605,7 +627,6 @@
       .tool-button:active,
       .icon-button:active {
         transform: scale(0.98);
-        box-shadow: 2px 2px 0 rgba(18, 20, 23, 0.28);
       }
 
       .preview-frame {
@@ -847,7 +868,7 @@
         </div>
         <div class="about-panel">
           <p>
-            大连理工大学工业设计大三本科在读，目标产品经理 / 用户研究方向，具备从用户研究、需求分析、竞品拆解、产品定义到原型方案输出的完整实践经验。熟悉用户访谈、问卷设计、用户旅程图、KANO 需求分级、二维矩阵分析、PRD 撰写等方法，能够将用户洞察转化为清晰的功能结构、交互流程与落地需求。长期关注互联网产品与 AI 工具，曾完成学习管理工具、医疗 eVTOL 用户研究、AI 图像生成 Web MVP 等项目，具备一定技术理解和 AI 辅助开发协作经验。
+            大连理工大学工业设计大三本科在读，目标产品经理 / 用户研究方向，具备从用户研究、需求分析、竞品拆解、产品定义到原型方案输出的完整实践经验。熟悉用户访谈、问卷设计、用户旅程图、KANO 需求分级、二维矩阵分析、PRD 撰写等方法，能够将用户洞察转化为清晰的功能结构、交互流程与落地需求。熟练使用 Figma、Stitch、Axure，可独立输出原型及 PRD 文档；具备产品逻辑梳理能力，能借助 AI 大模型辅助需求分析与原型设计，结合 Codex、Claude 快速输出可交互低保真高保真图、进行数据分析与需求池整理；了解敏捷开发模式；使用过 ComfyUI、TapNow、Coze、Trae 等工具，对 Agent 及 AIGC 有一定了解。
           </p>
           <div class="skills-row" aria-label="能力标签">
             <span class="tag">用户研究</span>
@@ -857,6 +878,8 @@
             <span class="tag">原型方案</span>
             <span class="tag">PRD 撰写</span>
             <span class="tag">AI 工具</span>
+            <span class="tag">Figma / Axure</span>
+            <span class="tag">Agent / AIGC</span>
           </div>
         </div>
       </section>
@@ -959,7 +982,6 @@
       <section class="section" id="documents" aria-labelledby="documents-title">
         <div class="section-head">
           <h2 id="documents-title">其他产品与研究材料</h2>
-          <p>没有对应 demo 的材料集中放在这里，课程表和学习助手相关资料已并入项目卡片。</p>
         </div>
 
         <div class="doc-grid">
