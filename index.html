@@ -251,6 +251,12 @@
         color: #fff;
         font-weight: 800;
         box-shadow: 3px 3px 0 rgba(18, 20, 23, 0.28);
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease,
+          color 160ms ease,
+          border-color 160ms ease;
       }
 
       .button.secondary {
@@ -332,18 +338,18 @@
         font: inherit;
         font-weight: 900;
         box-shadow: 3px 3px 0 rgba(18, 20, 23, 0.32);
-      }
-
-      .tool-button:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0 rgba(18, 20, 23, 0.32);
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease,
+          color 160ms ease,
+          border-color 160ms ease;
       }
 
       .project-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 18px;
-        perspective: 1200px;
       }
 
       .project-card,
@@ -357,37 +363,16 @@
       }
 
       .project-card {
-        transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-        transform-style: preserve-3d;
         transition:
           transform 180ms ease,
           box-shadow 180ms ease,
           border-color 180ms ease;
       }
 
-      .project-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: radial-gradient(
-          circle at var(--mx, 50%) var(--my, 50%),
-          rgba(243, 200, 75, 0.32),
-          transparent 26rem
-        );
-        opacity: 0;
-        transition: opacity 180ms ease;
-        z-index: 1;
-      }
-
       .project-card:hover,
       .project-card.is-featured {
+        transform: translateY(-4px);
         box-shadow: 9px 9px 0 rgba(18, 20, 23, 0.82);
-      }
-
-      .project-card:hover::before,
-      .project-card.is-featured::before {
-        opacity: 1;
       }
 
       .project-card.is-featured {
@@ -466,6 +451,13 @@
         letter-spacing: 0;
       }
 
+      .project-date {
+        margin: -2px 0 12px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
       .project-body p,
       .doc-card p {
         margin: 0;
@@ -504,6 +496,13 @@
         font-size: 14px;
         font-weight: 800;
         background: #fff;
+        cursor: pointer;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease,
+          color 160ms ease,
+          border-color 160ms ease;
       }
 
       .mini-button.primary {
@@ -578,6 +577,28 @@
         font-size: 20px;
         font-weight: 900;
         line-height: 1;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease,
+          color 160ms ease,
+          border-color 160ms ease;
+      }
+
+      .button:hover,
+      .mini-button:hover,
+      .tool-button:hover,
+      .icon-button:hover {
+        transform: scale(1.04);
+        box-shadow: 5px 5px 0 rgba(18, 20, 23, 0.28);
+      }
+
+      .button:active,
+      .mini-button:active,
+      .tool-button:active,
+      .icon-button:active {
+        transform: scale(0.98);
+        box-shadow: 2px 2px 0 rgba(18, 20, 23, 0.28);
       }
 
       .preview-frame {
@@ -842,6 +863,43 @@
         </div>
 
         <div class="project-grid">
+          <article class="project-card wide" data-demo="demo_课程表(2).html" data-title="课程表 × 记事轻量学习管理工具产品研究项目">
+            <div class="project-shot split-shot">
+              <img src="assets/previews/course-notes.png" alt="课程笔记移动端原型截图" />
+              <img src="assets/previews/course-schedule.png" alt="课程表移动端原型截图" />
+            </div>
+            <div class="project-body">
+              <div class="tag-row">
+                <span class="tag">移动端原型</span>
+                <span class="tag">课程表</span>
+                <span class="tag">记事工具</span>
+                <span class="tag">学习管理</span>
+              </div>
+              <h3>课程表 × 记事轻量学习管理工具产品研究项目</h3>
+              <p class="project-date">2026.3——至今</p>
+              <p>把课程周视图、事项记录、学习上下文和相关研究材料整合成一组面向大学生的轻量学习管理产品方案。</p>
+              <div class="card-actions">
+                <a class="mini-button primary" href="demo_课程表(1).html" target="_blank" rel="noreferrer">打开课程笔记</a>
+                <a class="mini-button primary" href="demo_课程表(2).html" target="_blank" rel="noreferrer">打开课程表</a>
+                <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(1).html" data-title="课程笔记">预览笔记</button>
+                <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(2).html" data-title="课程表">预览课程表</button>
+              </div>
+              <div class="resource-block">
+                <p class="resource-title">相关资料</p>
+                <div class="card-actions">
+                  <a class="mini-button download-button" href="课程表用户研究.pptx" download>下载用户研究</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表用户研究.pptx" data-title="课程表用户研究" data-kind="document">站内预览</button>
+                  <a class="mini-button download-button" href="课程表需求-功能对应分析表.xlsx" download>下载需求分析表</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表需求-功能对应分析表.xlsx" data-title="课程表需求-功能对应分析表" data-kind="document">站内预览</button>
+                  <a class="mini-button download-button" href="课程表_产品需求-解决方案总表.xlsx" download>下载方案总表</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表_产品需求-解决方案总表.xlsx" data-title="课程表产品需求与解决方案" data-kind="document">站内预览</button>
+                  <a class="mini-button download-button" href="课程表App竞品分析报告_超级课程表_vs_GoogleCalendar.docx" download>下载竞品报告</a>
+                  <button class="mini-button preview-trigger" type="button" data-preview="课程表App竞品分析报告_超级课程表_vs_GoogleCalendar.docx" data-title="课程表 App 竞品分析报告" data-kind="document">站内预览</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
           <article class="project-card" data-demo="demo_智能学习助手.html" data-title="智能学习助手">
             <div class="project-shot">
               <img src="assets/previews/smart-study.png" alt="智能学习助手 Web 原型截图" />
@@ -883,42 +941,6 @@
               <div class="card-actions">
                 <a class="mini-button primary" href="demo_评论拱火大师.html" target="_blank" rel="noreferrer">打开 Demo</a>
                 <button class="mini-button preview-trigger" type="button" data-preview="demo_评论拱火大师.html" data-title="评论拱火大师">站内预览</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="project-card wide" data-demo="demo_课程表(2).html" data-title="课程笔记与课程表">
-            <div class="project-shot split-shot">
-              <img src="assets/previews/course-notes.png" alt="课程笔记移动端原型截图" />
-              <img src="assets/previews/course-schedule.png" alt="课程表移动端原型截图" />
-            </div>
-            <div class="project-body">
-              <div class="tag-row">
-                <span class="tag">移动端原型</span>
-                <span class="tag">课程笔记</span>
-                <span class="tag">课程表</span>
-                <span class="tag">学习闭环</span>
-              </div>
-              <h3>课程笔记与课程表</h3>
-              <p>把课程周视图、任务、复习记录、直播笔记和相关文件整合成一组移动端学习管理原型。</p>
-              <div class="card-actions">
-                <a class="mini-button primary" href="demo_课程表(1).html" target="_blank" rel="noreferrer">打开课程笔记</a>
-                <a class="mini-button primary" href="demo_课程表(2).html" target="_blank" rel="noreferrer">打开课程表</a>
-                <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(1).html" data-title="课程笔记">预览笔记</button>
-                <button class="mini-button preview-trigger" type="button" data-preview="demo_课程表(2).html" data-title="课程表">预览课程表</button>
-              </div>
-              <div class="resource-block">
-                <p class="resource-title">相关资料</p>
-                <div class="card-actions">
-                  <a class="mini-button download-button" href="课程表用户研究.pptx" download>下载用户研究</a>
-                  <button class="mini-button preview-trigger" type="button" data-preview="课程表用户研究.pptx" data-title="课程表用户研究" data-kind="document">站内预览</button>
-                  <a class="mini-button download-button" href="课程表需求-功能对应分析表.xlsx" download>下载需求分析表</a>
-                  <button class="mini-button preview-trigger" type="button" data-preview="课程表需求-功能对应分析表.xlsx" data-title="课程表需求-功能对应分析表" data-kind="document">站内预览</button>
-                  <a class="mini-button download-button" href="课程表_产品需求-解决方案总表.xlsx" download>下载方案总表</a>
-                  <button class="mini-button preview-trigger" type="button" data-preview="课程表_产品需求-解决方案总表.xlsx" data-title="课程表产品需求与解决方案" data-kind="document">站内预览</button>
-                  <a class="mini-button download-button" href="课程表App竞品分析报告_超级课程表_vs_GoogleCalendar.docx" download>下载竞品报告</a>
-                  <button class="mini-button preview-trigger" type="button" data-preview="课程表App竞品分析报告_超级课程表_vs_GoogleCalendar.docx" data-title="课程表 App 竞品分析报告" data-kind="document">站内预览</button>
-                </div>
               </div>
             </div>
           </article>
@@ -1000,27 +1022,6 @@
       const previewOpen = document.getElementById("previewOpen");
       const previewClose = document.getElementById("previewClose");
       const randomDemo = document.getElementById("randomDemo");
-
-      projectCards.forEach((card) => {
-        card.addEventListener("pointermove", (event) => {
-          if (window.matchMedia("(max-width: 900px)").matches) return;
-          const rect = card.getBoundingClientRect();
-          const x = event.clientX - rect.left;
-          const y = event.clientY - rect.top;
-          const rx = ((0.5 - y / rect.height) * 5).toFixed(2);
-          const ry = ((x / rect.width - 0.5) * 6).toFixed(2);
-
-          card.style.setProperty("--mx", `${(x / rect.width) * 100}%`);
-          card.style.setProperty("--my", `${(y / rect.height) * 100}%`);
-          card.style.setProperty("--rx", `${rx}deg`);
-          card.style.setProperty("--ry", `${ry}deg`);
-        });
-
-        card.addEventListener("pointerleave", () => {
-          card.style.setProperty("--rx", "0deg");
-          card.style.setProperty("--ry", "0deg");
-        });
-      });
 
       function getOfficeViewerUrl(src) {
         const publicUrl = new URL(src, window.location.href).href;
