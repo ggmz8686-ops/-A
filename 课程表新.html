@@ -1,0 +1,3384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程表</title>
+  <style>
+    @font-face {
+      font-family: 'LocalPingFang';
+      src: url("./PingFang%20(Regular)-%E8%8B%B9%E6%96%B9%E5%AD%97%E4%BD%93_%E7%88%B1%E7%BB%99%E7%BD%91_aigei_com.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #c8c8c8;
+      --app-bg: #f2f2f7;
+      --panel: #ffffff;
+      --text: #1a1a1a;
+      --subtext: #8a8a8e;
+      --line: rgba(0, 0, 0, 0.08);
+      --line-strong: rgba(0, 0, 0, 0.16);
+      --accent: #555555;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      --phone-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+      --radius: 36px;
+      --card-radius: 6px;
+      --time-width: 60px;
+      --hour-height: 60px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'LocalPingFang', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      color: var(--text);
+      padding: 18px;
+    }
+
+    .phone {
+      width: 393px;
+      height: 852px;
+      border-radius: 54px;
+      background: #111;
+      box-shadow: var(--phone-shadow);
+      padding: 12px;
+      position: relative;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 42px;
+      overflow: hidden;
+      background: var(--app-bg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen.dark-mode {
+      --app-bg: #000000;
+      --panel: #1c1c1e;
+      --text: #ffffff;
+      --subtext: #9a9aa0;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.18);
+      --accent: #f5f5f7;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+    }
+
+    .screen.dark-mode .header {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .screen.dark-mode .icon-button.active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .screen.dark-mode .view-handle {
+      background: linear-gradient(to bottom, rgba(28,28,30,0.98), rgba(0,0,0,0.98));
+    }
+
+    .screen.dark-mode .view-handle-bar {
+      background: #5d5d63;
+    }
+
+    .screen.dark-mode .bottom-nav {
+      background: rgba(28, 28, 30, 0.95);
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .screen.dark-mode .tab-button {
+      color: #666;
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 116px;
+      height: 28px;
+      border-radius: 999px;
+      background: #000;
+      z-index: 50;
+    }
+
+    .header {
+      padding: 54px 14px 10px;
+      background: var(--panel);
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 5;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .week-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0;
+      color: var(--text);
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .term-label {
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--subtext);
+      font-weight: 500;
+    }
+
+    .icon-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      position: relative;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .header-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .week-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-button,
+    .arrow-button,
+    .day-header,
+    .today-chip,
+    .tab-button,
+    .modal-close,
+    .small-button,
+    .ghost-button,
+    .import-action,
+    .todo-remove,
+    .checkbox-button,
+    .calendar-cell,
+    .event-chip,
+    .card-hit {
+      appearance: none;
+      border: none;
+      background: none;
+      font: inherit;
+      color: inherit;
+    }
+
+    .icon-button,
+    .arrow-button,
+    .day-header,
+    .today-chip,
+    .tab-button,
+    .small-button,
+    .ghost-button,
+    .import-action,
+    .todo-remove,
+    .checkbox-button,
+    .calendar-cell,
+    .event-chip,
+    .card-hit,
+    .fab {
+      cursor: pointer;
+    }
+
+    .arrow-button,
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      color: var(--subtext);
+    }
+
+    .icon-button.active {
+      color: var(--accent);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .today-chip {
+      border: 1.5px solid #999;
+      border-radius: 18px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--subtext);
+      user-select: none;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .popover {
+      position: absolute;
+      top: 38px;
+      right: 0;
+      min-width: 180px;
+      background: var(--panel);
+      border: 1px solid #e2e2e2;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .popover-title {
+      padding: 8px 12px 6px;
+      font-size: 10px;
+      color: #b0b0b5;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .popover-row {
+      appearance: none;
+      border: none;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 12px;
+      border-top: 1px solid #f1f1f1;
+      background: #fff;
+      text-align: left;
+    }
+
+    .popover-row:focus,
+    .popover-row:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
+    .toggle-pill {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      background: #d8d8dd;
+      position: relative;
+      transition: background 0.18s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle-pill::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: transform 0.18s ease;
+    }
+
+    .toggle-pill.on {
+      background: #555;
+    }
+
+    .toggle-pill.on::after {
+      transform: translateX(14px);
+    }
+
+    .day-strip {
+      display: flex;
+      align-items: stretch;
+      background: var(--panel);
+      border-bottom: 1.5px solid #ccc;
+      padding: 6px 0;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 4;
+    }
+
+    .month-label {
+      width: var(--time-width);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--subtext);
+      white-space: nowrap;
+      writing-mode: horizontal-tb;
+      transform: none;
+    }
+
+    .day-header {
+      flex: 1;
+      text-align: center;
+      border-left: 1px solid var(--line);
+      border-top: none;
+      border-right: none;
+      border-bottom: none;
+      background: transparent;
+      user-select: none;
+      padding: 0 2px;
+    }
+
+    .day-name {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    .day-number {
+      margin-top: 1px;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .view-handle {
+      height: 18px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(242,242,247,0.98));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .view-handle-bar {
+      width: 34px;
+      height: 4px;
+      border-radius: 999px;
+      background: #d0d0d5;
+    }
+
+    .calendar-shell {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--app-bg);
+    }
+
+    .week-view,
+    .month-view {
+      width: 100%;
+      height: 100%;
+    }
+
+    .week-view {
+      overflow-y: auto;
+      overflow-x: hidden;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .week-view::-webkit-scrollbar {
+      display: none;
+    }
+
+    .week-grid {
+      display: flex;
+      height: calc(var(--hour-height) * 24);
+      min-height: calc(var(--hour-height) * 24);
+      position: relative;
+    }
+
+    .time-column {
+      width: var(--time-width);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .time-label {
+      position: absolute;
+      left: 0;
+      right: 6px;
+      transform: translateY(-1px);
+      text-align: right;
+      font-size: 8px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      color: var(--subtext);
+    }
+
+    .time-label-period {
+      display: block;
+      font-size: 8px;
+      line-height: 1.15;
+    }
+
+    .time-label-range {
+      display: block;
+      margin-top: 1px;
+      font-size: 7px;
+      line-height: 1.15;
+    }
+
+    .day-column {
+      flex: 1;
+      position: relative;
+      border-left: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .day-column.selected {
+      background: rgba(0, 0, 0, 0.025);
+    }
+
+    .hour-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px solid var(--line);
+      pointer-events: none;
+    }
+
+    .hour-line.major {
+      border-top-color: var(--line-strong);
+    }
+
+    .card-wrap {
+      position: absolute;
+      left: 1px;
+      right: 1px;
+      perspective: 600px;
+      touch-action: manipulation;
+    }
+
+    .card-wrap.dragging {
+      z-index: 18;
+      opacity: 0.92;
+    }
+
+    .card-wrap.source-hidden {
+      visibility: hidden;
+    }
+
+    .drag-placeholder,
+    .drag-target {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: var(--card-radius);
+      pointer-events: none;
+    }
+
+    .drag-placeholder {
+      border: 1.5px dashed rgba(85, 85, 85, 0.7);
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .drag-target {
+      border: 1.5px solid rgba(85, 85, 85, 0.85);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.38);
+    }
+
+    .drag-ghost-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 26;
+      overflow: visible;
+    }
+
+    .drag-guide-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 22;
+      overflow: visible;
+    }
+
+    .drag-ghost {
+      position: absolute;
+      width: calc((100% - var(--time-width)) / 7 - 2px);
+      min-height: 24px;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.18));
+      animation: drag-float 1.8s ease-in-out infinite;
+      will-change: transform;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drag-ghost .card-wrap,
+    .drag-ghost .card-face,
+    .drag-ghost .card-front,
+    .drag-ghost .card-back {
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .drag-ghost .card-face {
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+      border-color: rgba(85, 85, 85, 0.9);
+    }
+
+    .drag-ghost .card-front {
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,245,245,0.96)) !important;
+    }
+
+    @keyframes drag-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-2px);
+      }
+    }
+
+    .card-flip-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    }
+
+    .card-flip-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border: 1px solid #999;
+    }
+
+    .card-front,
+    .card-back {
+      padding: 4px 5px;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      background: #fff;
+    }
+
+    .course-title {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.12;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .course-meta {
+      margin-top: 3px;
+      font-size: 7.4px;
+      line-height: 1.2;
+      color: rgba(26, 26, 26, 0.78);
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .card-pin {
+      position: absolute;
+      right: 4px;
+      bottom: 3px;
+      opacity: 0.74;
+      pointer-events: none;
+    }
+
+    .card-hit {
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 100%;
+      display: block;
+      background: transparent;
+      z-index: 2;
+    }
+
+    .card-hit.top {
+      top: 0;
+      height: 50%;
+    }
+
+    .card-hit.bottom {
+      bottom: 0;
+      height: 50%;
+    }
+
+    .todo-title {
+      font-size: 8px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 2px;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .todo-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 3px;
+      margin-bottom: 1px;
+      cursor: pointer;
+    }
+
+    .todo-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1px solid #888;
+      margin-top: 2px;
+      flex-shrink: 0;
+      background: transparent;
+    }
+
+    .todo-dot.done {
+      background: #bbb;
+      border-color: #aaa;
+    }
+
+    .todo-text {
+      font-size: 7.6px;
+      line-height: 1.28;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .todo-text.done {
+      color: #bbb;
+      text-decoration: line-through;
+    }
+
+    .event-card {
+      position: absolute;
+      left: 3px;
+      right: 3px;
+      border-radius: 6px;
+      border: 1px dashed rgba(85, 85, 85, 0.48);
+      background: rgba(255, 255, 255, 0.86);
+      padding: 4px 5px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .event-card-title {
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .event-card-sub {
+      margin-top: 1px;
+      font-size: 8px;
+      color: var(--subtext);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .embedded-event {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      border-radius: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: rgba(255, 255, 255, 0.92);
+      padding: 3px 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      z-index: 5;
+      text-align: left;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .embedded-event-title {
+      font-size: 8px;
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .embedded-event-sub {
+      margin-top: 1px;
+      font-size: 7px;
+      line-height: 1.15;
+      color: #666;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .month-view {
+      display: flex;
+      flex-direction: column;
+      padding: 0 10px 8px;
+      overflow: hidden;
+    }
+
+    .month-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px 10px;
+      flex-shrink: 0;
+    }
+
+    .month-banner-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .month-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      flex-shrink: 0;
+      margin-bottom: 4px;
+      padding: 0 2px;
+    }
+
+    .month-weekday {
+      text-align: center;
+      font-size: 10px;
+      color: var(--subtext);
+      padding-bottom: 4px;
+    }
+
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .calendar-cell {
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      min-height: 92px;
+      padding: 0;
+      text-align: left;
+      border: 1px solid transparent;
+      overflow: hidden;
+      perspective: 800px;
+    }
+
+    .calendar-cell.other-month {
+      opacity: 0.45;
+    }
+
+    .calendar-cell.selected {
+      border-color: rgba(85, 85, 85, 0.34);
+      box-shadow: inset 0 0 0 1px rgba(85, 85, 85, 0.1);
+    }
+
+    .calendar-cell.past .cell-date {
+      color: #bbb;
+    }
+
+    .cell-date {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .month-cell-inner {
+      width: 100%;
+      height: 100%;
+      min-height: 92px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.32s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .calendar-cell.flipped .month-cell-inner {
+      transform: rotateY(180deg);
+    }
+
+    .month-cell-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      padding: 6px 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .month-cell-face.back {
+      transform: rotateY(180deg);
+    }
+
+    .calendar-cell.past.selected .cell-date {
+      color: #a3a3a8;
+      font-weight: 800;
+    }
+
+    .cell-events {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-height: 0;
+    }
+
+    .cell-event {
+      padding: 3px 5px;
+      border-radius: 6px;
+      font-size: 8px;
+      line-height: 1.22;
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      color: #2f2f34;
+    }
+
+    .cell-more {
+      font-size: 9px;
+      color: var(--subtext);
+    }
+
+    .cell-empty {
+      flex: 1;
+      min-height: 10px;
+    }
+
+    .bottom-nav {
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-top: 1px solid #e0e0e0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 8px 0 28px;
+      display: flex;
+      justify-content: space-around;
+      position: relative;
+      z-index: 5;
+    }
+
+    .tab-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 14px;
+      color: #aaa;
+    }
+
+    .tab-button.active {
+      color: var(--accent);
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 400;
+    }
+
+    .tab-button.active .tab-label {
+      font-weight: 700;
+    }
+
+    .fab {
+      position: absolute;
+      right: 14px;
+      bottom: 80px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.28);
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 80;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .sheet {
+      width: 100%;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      padding: 0 0 32px;
+      max-height: 78%;
+      overflow: hidden;
+      box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .sheet-handle-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 4px;
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 999px;
+      background: #ddd;
+    }
+
+    .sheet-header {
+      padding: 8px 16px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sheet-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .sheet-subtitle {
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--subtext);
+    }
+
+    .modal-close {
+      font-size: 20px;
+      line-height: 1;
+      color: #bbb;
+    }
+
+    .meta-row {
+      display: flex;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .meta-block {
+      flex: 1;
+      text-align: center;
+    }
+
+    .meta-block + .meta-block {
+      border-left: 1px solid #f0f0f0;
+    }
+
+    .meta-label {
+      font-size: 9px;
+      color: var(--subtext);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-value {
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sheet-section {
+      padding: 8px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .section-label {
+      font-size: 9px;
+      color: var(--subtext);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .sheet-note {
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .small-button,
+    .ghost-button,
+    .import-action {
+      border-radius: 6px;
+      font-size: 12px;
+      padding: 7px 10px;
+    }
+
+    .small-button {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .ghost-button,
+    .import-action {
+      background: #fff;
+      border: 1px solid #ddd;
+      color: var(--text);
+    }
+
+    .sheet-todo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+      cursor: pointer;
+    }
+
+    .sheet-todo:last-child {
+      margin-bottom: 0;
+    }
+
+    .sheet-todo-text {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .sheet-todo-text.done {
+      color: #aaa;
+      text-decoration: line-through;
+    }
+
+    .editor-card,
+    .import-card {
+      width: min(88%, 332px);
+      max-height: 74%;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .confirm-card {
+      width: min(86%, 292px);
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+      padding: 16px 16px 14px;
+    }
+
+    .confirm-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #222;
+      line-height: 1.3;
+    }
+
+    .confirm-text {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #666;
+    }
+
+    .confirm-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .confirm-actions.stacked {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .confirm-actions.stacked .small-button,
+    .confirm-actions.stacked .ghost-button {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .editor-header,
+    .import-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .editor-body,
+    .import-body {
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .editor-input-row,
+    .import-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .editor-input-row {
+      grid-template-columns: 1fr auto;
+      border-bottom: 1px solid #eee;
+      padding: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .field.two-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--subtext);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 9px;
+      font: inherit;
+      font-size: 12px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 138px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .editor-list {
+      overflow-y: auto;
+      padding: 8px 12px 12px;
+    }
+
+    .editor-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .editor-item:last-child {
+      border-bottom: none;
+    }
+
+    .editor-item-text {
+      flex: 1;
+      min-width: 0;
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .editor-item-text.done {
+      color: #aaa;
+      text-decoration: line-through;
+    }
+
+    .checkbox-button {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid #bbb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #fff;
+    }
+
+    .checkbox-button.done {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .todo-remove {
+      width: 22px;
+      height: 22px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      color: #999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+      background: #fff;
+    }
+
+    .muted-note,
+    .empty-note {
+      font-size: 12px;
+      color: var(--subtext);
+      line-height: 1.5;
+    }
+
+    .empty-note {
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    .import-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 12px 12px 0;
+      flex-wrap: wrap;
+    }
+
+    .import-tab {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 11px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .import-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .import-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 0 12px 12px;
+    }
+
+    .notice {
+      position: absolute;
+      left: 50%;
+      bottom: 134px;
+      transform: translateX(-50%);
+      background: rgba(28, 28, 30, 0.9);
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.35;
+      z-index: 90;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      max-width: 300px;
+      text-align: center;
+    }
+
+    @media (max-width: 430px) {
+      body {
+        padding: 0;
+      }
+
+      .phone {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        padding: 0;
+      }
+
+      .screen {
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="dynamic-island"></div>
+      <div id="app"></div>
+    </div>
+  </div>
+
+  <script>
+    const DAYS_SHORT = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const MONTH_NAMES = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    const SEMESTER_LABEL = '2025-2026 春季学期';
+    const BASE_WEEK_NUMBER = 10;
+    const BASE_WEEK_START = new Date(2026, 3, 20);
+    const TODAY = new Date(2026, 3, 25);
+    const DAY_START_HOUR = 0;
+    const DAY_END_HOUR = 24;
+    const PX_PER_HOUR = 60;
+    const DEFAULT_SCROLL_HOUR = 8;
+    const PERIOD_SLOTS = [
+      { number: 1, start: '08:00', end: '08:45' },
+      { number: 2, start: '08:50', end: '09:35' },
+      { number: 3, start: '10:05', end: '10:50' },
+      { number: 4, start: '10:55', end: '11:40' },
+      { number: 5, start: '13:30', end: '14:15' },
+      { number: 6, start: '14:20', end: '15:05' },
+      { number: 7, start: '15:35', end: '16:20' },
+      { number: 8, start: '16:25', end: '17:10' },
+      { number: 9, start: '18:00', end: '18:45' },
+      { number: 10, start: '18:50', end: '19:35' },
+      { number: 11, start: '19:40', end: '20:25' },
+      { number: 12, start: '20:30', end: '21:15' }
+    ];
+    const CARD_COLORS = ['#d9d9d9', '#e4e4e4', '#cfcfcf', '#e8e8e8', '#dadada', '#d4d4d4', '#e0e0e0'];
+    const MONTH_EVENT_COLORS = ['#e8eaed', '#dfe7fd', '#fde7ea', '#dff5e5', '#fff1db', '#e7def8'];
+
+    const COURSE_DETAILS = {
+      '微积分': { room: 'A101', credits: 4, teacher: '张教授', note: '5 月初有阶段测验' },
+      '大学英语': { room: 'B203', credits: 2, teacher: '李老师', note: '本周五提交作文' },
+      '线性代数': { room: 'C301', credits: 3, teacher: '王教授', note: '线性变换章节需要补练' },
+      '数据结构': { room: 'D102', credits: 4, teacher: '刘老师', note: '这门课改成四节连排' },
+      '操作系统基础': { room: 'E201', credits: 3, teacher: '陈教授', note: '调度章节本周继续推进' },
+      '体育': { room: '体育场', credits: 1, teacher: '吴教练', note: '室外课，记得带水' },
+      '计算机网络': { room: 'F303', credits: 3, teacher: '赵教授', note: '周三网络实验' },
+      '数据库原理': { room: 'G202', credits: 4, teacher: '钱老师', note: '这门课改成四节连排' },
+      '程序设计实验': { room: '实验室 1', credits: 2, teacher: '孙教授', note: '实验报告仍需按时交' },
+      '夜间研讨课': { room: 'H101', credits: 1, teacher: '方博士', note: '阅读论文，带问题来' }
+    };
+
+    const BASE_TODOS = {
+      '微积分': ['复习第 5 章积分', '提交作业 7', '预习下一章'],
+      '大学英语': ['完成作文初稿', '复习词汇卡'],
+      '线性代数': ['练习特征值', '周二小组学习'],
+      '数据结构': ['完成 BST 实验', '阅读树结构章节'],
+      '操作系统基础': ['阅读调度笔记', '准备小测', '做志愿（逃课也要去）'],
+      '体育': ['带运动鞋'],
+      '计算机网络': ['整理 TCP/IP 摘要', '提交实验报告'],
+      '数据库原理': ['完成 ER 图作业', '练习 SQL'],
+      '程序设计实验': ['调试任务 3', '提交代码'],
+      '夜间研讨课': ['阅读论文', '准备问题']
+    };
+
+    const BASE_COURSES = [
+      { id: 'c1', day: 0, name: '微积分', teacher: '张教授', start: '08:00', end: '09:35', ci: 0 },
+      { id: 'c2', day: 0, name: '大学英语', teacher: '李老师', start: '10:05', end: '11:40', ci: 1 },
+      { id: 'c3', day: 0, name: '线性代数', teacher: '王教授', start: '13:30', end: '15:05', ci: 2 },
+      { id: 'c4', day: 1, name: '数据结构', teacher: '刘老师', start: '08:00', end: '11:40', ci: 3, periods: 4 },
+      { id: 'c5', day: 1, name: '操作系统基础', teacher: '陈教授', start: '13:30', end: '15:05', ci: 1 },
+      { id: 'c6', day: 1, name: '体育', teacher: '吴教练', start: '15:35', end: '17:10', ci: 4 },
+      { id: 'c7', day: 2, name: '计算机网络', teacher: '赵教授', start: '10:05', end: '11:40', ci: 5 },
+      { id: 'c8', day: 2, name: '微积分', teacher: '张教授', start: '13:30', end: '15:05', ci: 0 },
+      { id: 'c9', day: 3, name: '数据库原理', teacher: '钱老师', start: '13:30', end: '17:10', ci: 2, periods: 4 },
+      { id: 'c10', day: 3, name: '大学英语', teacher: '李老师', start: '10:05', end: '11:40', ci: 1 },
+      { id: 'c11', day: 3, name: '程序设计实验', teacher: '孙教授', start: '18:50', end: '20:25', ci: 3 },
+      { id: 'c12', day: 4, name: '计算机网络', teacher: '赵教授', start: '08:00', end: '09:35', ci: 5 },
+      { id: 'c13', day: 4, name: '操作系统基础', teacher: '陈教授', start: '13:30', end: '15:05', ci: 1 },
+      { id: 'c14', day: 6, name: '夜间研讨课', teacher: '方博士', start: '18:50', end: '20:25', ci: 6 }
+    ];
+
+    const BASE_EVENTS = [
+      {
+        id: 'e1',
+        title: '做志愿',
+        type: 'general',
+        date: '2026-04-21',
+        start: '12:30',
+        end: '13:30',
+        course: '操作系统基础',
+        note: '逃课也要去干的事'
+      },
+      {
+        id: 'e2',
+        title: '班会',
+        type: 'general',
+        date: '2026-04-24',
+        start: '18:20',
+        end: '19:00',
+        note: '院里通知'
+      },
+      {
+        id: 'e3',
+        title: '数据库原理测验',
+        type: 'exam',
+        date: '2026-04-29',
+        start: '09:00',
+        end: '11:00',
+        course: '数据库原理',
+        note: '第 8 周随堂测验'
+      },
+      {
+        id: 'e4',
+        title: '操作系统基础考试',
+        type: 'exam',
+        date: '2026-04-26',
+        start: '15:00',
+        end: '17:00',
+        course: '操作系统基础',
+        note: '周日安排的阶段考试'
+      },
+      {
+        id: 'e5',
+        title: '做志愿',
+        type: 'general',
+        date: '2026-04-23',
+        start: '10:20',
+        end: '11:00',
+        course: '大学英语',
+        embeddedCourseId: 'c10',
+        note: '逃课也要去干的事'
+      }
+    ];
+
+    const state = {
+      view: 'week',
+      darkMode: false,
+      weekOffset: 0,
+      selectedDate: cloneDate(TODAY),
+      flippedCards: new Set(),
+      detailCourseId: null,
+      detailCourseDate: null,
+      detailEventId: null,
+      editingCourseId: null,
+      showImportMenu: false,
+      showFilterMenu: false,
+      importModalMode: null,
+      manualDraft: null,
+      pendingConflictDraft: null,
+      pendingConflictCourseIds: [],
+      importText: '',
+      importError: '',
+      showMonthCourses: true,
+      showMonthExams: true,
+      monthTodoMode: false,
+      needsWeekScrollReset: true,
+      weekScrollTop: (DEFAULT_SCROLL_HOUR - DAY_START_HOUR) * PX_PER_HOUR - 4,
+      userEvents: [],
+      courseTodos: deepClone(BASE_TODOS),
+      courseDone: {},
+      toast: '',
+      toastTimer: null,
+      courseOverrides: { all: {}, weeks: {} },
+      cardPress: null,
+      dragCourseDraft: null,
+      pendingCourseMove: null,
+      dragJustEndedAt: 0,
+      dragStartY: null,
+      dragStartX: null,
+      dragTracking: false
+    };
+
+    const app = document.getElementById('app');
+
+    function deepClone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function cloneDate(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function dateKey(date) {
+      return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    function parseDateKey(key) {
+      const [year, month, day] = key.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function addDays(date, days) {
+      const next = cloneDate(date);
+      next.setDate(next.getDate() + days);
+      return next;
+    }
+
+    function startOfWeek(date) {
+      const dayIndex = (date.getDay() + 6) % 7;
+      return addDays(date, -dayIndex);
+    }
+
+    function sameDay(a, b) {
+      return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+    }
+
+    function isPastDay(date) {
+      return cloneDate(date) < cloneDate(TODAY);
+    }
+
+    function minutesFromTime(text) {
+      const [h, m] = text.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function timeFromMinutes(total) {
+      const h = Math.floor(total / 60);
+      const m = total % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function snapMinutes(total) {
+      const snapped = Math.round(total / 30) * 30;
+      return Math.max(DAY_START_HOUR * 60, Math.min((DAY_END_HOUR - 1) * 60 + 30, snapped));
+    }
+
+    function courseTopPx(course) {
+      return ((minutesFromTime(course.start) - DAY_START_HOUR * 60) / 60) * PX_PER_HOUR + 1;
+    }
+
+    function durationPx(start, end) {
+      return Math.max(((minutesFromTime(end) - minutesFromTime(start)) / 60) * PX_PER_HOUR - 3, 24);
+    }
+
+    function topPxFromMinutes(total) {
+      return ((total - DAY_START_HOUR * 60) / 60) * PX_PER_HOUR;
+    }
+
+    function currentWeekStart() {
+      return addDays(BASE_WEEK_START, state.weekOffset * 7);
+    }
+
+    function weekOffsetForDate(date) {
+      const targetWeekStart = startOfWeek(cloneDate(date));
+      return Math.round((targetWeekStart - cloneDate(BASE_WEEK_START)) / (7 * 24 * 60 * 60 * 1000));
+    }
+
+    function displayedDates() {
+      const start = currentWeekStart();
+      return Array.from({ length: 7 }, (_, index) => addDays(start, index));
+    }
+
+    function activeWeekDate() {
+      const dates = displayedDates();
+      const selectedInWeek = dates.some(date => sameDay(date, state.selectedDate));
+      return selectedInWeek ? state.selectedDate : dates[0];
+    }
+
+    function currentWeekNumber() {
+      return BASE_WEEK_NUMBER + state.weekOffset;
+    }
+
+    function currentMonthLabel() {
+      return MONTH_NAMES[activeWeekDate().getMonth()];
+    }
+
+    function formatRange(start, end) {
+      return `${start} - ${end}`;
+    }
+
+    function allEvents() {
+      return [...BASE_EVENTS, ...state.userEvents];
+    }
+
+    function getCourseById(id) {
+      return BASE_COURSES.find(course => course.id === id) || null;
+    }
+
+    function getCourseByName(name) {
+      return BASE_COURSES.find(course => course.name === name) || null;
+    }
+
+    function weekKeyForDate(date) {
+      return dateKey(startOfWeek(cloneDate(date)));
+    }
+
+    function getCourseOverride(courseId, date) {
+      const weekKey = weekKeyForDate(date);
+      return state.courseOverrides.weeks[weekKey]?.[courseId]
+        || state.courseOverrides.all[courseId]
+        || null;
+    }
+
+    function getCourseInstanceForDate(courseOrId, date) {
+      const base = typeof courseOrId === 'string' ? getCourseById(courseOrId) : courseOrId;
+      if (!base) return null;
+      const override = getCourseOverride(base.id, date);
+      return override ? { ...base, ...override } : { ...base };
+    }
+
+    function getWeekCoursesForDate(date) {
+      const dayIndex = (date.getDay() + 6) % 7;
+      return BASE_COURSES
+        .map(course => getCourseInstanceForDate(course, date))
+        .filter(course => course && course.day === dayIndex);
+    }
+
+    function findNearestPeriodStart(targetMinutes, durationMinutes) {
+      const lastEndMinutes = minutesFromTime(PERIOD_SLOTS[PERIOD_SLOTS.length - 1].end);
+      const validStarts = PERIOD_SLOTS
+        .map(slot => minutesFromTime(slot.start))
+        .filter(start => start + durationMinutes <= lastEndMinutes);
+      return validStarts.reduce((closest, start) => (
+        Math.abs(start - targetMinutes) < Math.abs(closest - targetMinutes) ? start : closest
+      ), validStarts[0]);
+    }
+
+    function getEventById(id) {
+      return allEvents().find(event => event.id === id) || null;
+    }
+
+    function getCourseTodos(name) {
+      return state.courseTodos[name] || [];
+    }
+
+    function getDoneMap(name) {
+      return state.courseDone[name] || {};
+    }
+
+    function toggleTodoDone(courseName, index) {
+      const current = { ...(state.courseDone[courseName] || {}) };
+      current[index] = !current[index];
+      state.courseDone[courseName] = current;
+      render();
+    }
+
+    function openCourseDetail(courseId, courseDate = dateKey(activeWeekDate())) {
+      state.detailCourseId = courseId;
+      state.detailCourseDate = courseDate;
+      state.detailEventId = null;
+      state.showImportMenu = false;
+      state.showFilterMenu = false;
+      render();
+    }
+
+    function openEventDetail(eventId) {
+      state.detailEventId = eventId;
+      state.detailCourseId = null;
+      state.showImportMenu = false;
+      state.showFilterMenu = false;
+      render();
+    }
+
+    function setCardFlipDom(courseId, flipped, cardElement = null) {
+      const cards = cardElement ? [cardElement] : Array.from(document.querySelectorAll(`.card-wrap[data-course-id="${courseId}"]`));
+      cards.forEach(card => {
+        const inner = card.querySelector('.card-flip-inner');
+        if (!inner) return;
+        inner.classList.toggle('flipped', flipped);
+      });
+    }
+
+    function toggleCardFlip(courseId, cardElement = null) {
+      const nextFlipped = !state.flippedCards.has(courseId);
+      if (nextFlipped) {
+        state.flippedCards.add(courseId);
+      } else {
+        state.flippedCards.delete(courseId);
+      }
+      setCardFlipDom(courseId, nextFlipped, cardElement);
+    }
+
+    function toggleAllCards() {
+      if (state.view === 'month') {
+        state.monthTodoMode = !state.monthTodoMode;
+        render();
+        return;
+      }
+      const todoCourseIds = BASE_COURSES
+        .filter(course => getCourseTodos(course.name).length > 0)
+        .map(course => course.id);
+      const shouldFlip = todoCourseIds.some(id => !state.flippedCards.has(id));
+      state.flippedCards = shouldFlip ? new Set(todoCourseIds) : new Set();
+      document.querySelectorAll('.card-wrap[data-course-id]').forEach(card => {
+        const courseId = card.dataset.courseId;
+        const hasTodos = card.dataset.hasTodos === 'true';
+        if (!hasTodos) return;
+        setCardFlipDom(courseId, shouldFlip, card);
+      });
+    }
+
+    function showToast(message) {
+      state.toast = message;
+      if (state.toastTimer) {
+        clearTimeout(state.toastTimer);
+      }
+      state.toastTimer = setTimeout(() => {
+        state.toast = '';
+        state.toastTimer = null;
+        render();
+      }, 1800);
+      render();
+    }
+
+    function closeOverlays() {
+      state.detailCourseId = null;
+      state.detailCourseDate = null;
+      state.detailEventId = null;
+      state.editingCourseId = null;
+      state.importModalMode = null;
+      state.importError = '';
+      state.showImportMenu = false;
+      state.showFilterMenu = false;
+      render();
+    }
+
+    function openTodoEditor(courseId) {
+      state.editingCourseId = courseId;
+      render();
+    }
+
+    function addTodo(courseName, text) {
+      const value = text.trim();
+      if (!value) return;
+      state.courseTodos[courseName] = [...getCourseTodos(courseName), value];
+      render();
+    }
+
+    function deleteTodo(courseName, index) {
+      const nextTodos = getCourseTodos(courseName).filter((_, todoIndex) => todoIndex !== index);
+      state.courseTodos[courseName] = nextTodos;
+
+      const doneMap = getDoneMap(courseName);
+      const nextDone = {};
+      Object.keys(doneMap).forEach(key => {
+        const numeric = Number(key);
+        if (numeric < index) nextDone[numeric] = doneMap[key];
+        if (numeric > index) nextDone[numeric - 1] = doneMap[key];
+      });
+      state.courseDone[courseName] = nextDone;
+      render();
+    }
+
+    function setSelectedDate(date) {
+      state.selectedDate = cloneDate(date);
+      render();
+    }
+
+    function switchView(nextView) {
+      state.view = nextView;
+      if (nextView === 'week') {
+        state.needsWeekScrollReset = true;
+      }
+      render();
+    }
+
+    function scrollWeekViewToDefault() {
+      const weekView = document.querySelector('.week-view');
+      if (weekView) {
+        state.weekScrollTop = (DEFAULT_SCROLL_HOUR - DAY_START_HOUR) * PX_PER_HOUR - 4;
+        weekView.scrollTop = state.weekScrollTop;
+        state.needsWeekScrollReset = false;
+      }
+    }
+
+    function restoreWeekViewScroll() {
+      const weekView = document.querySelector('.week-view');
+      if (!weekView) return;
+      if (state.needsWeekScrollReset) {
+        scrollWeekViewToDefault();
+        return;
+      }
+      weekView.scrollTop = state.weekScrollTop || 0;
+    }
+
+    function eventMatchesDate(event, date) {
+      return event.date === dateKey(date);
+    }
+
+    function monthGridDates(targetDate) {
+      const monthStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+      const startWeekday = (monthStart.getDay() + 6) % 7;
+      const gridStart = addDays(monthStart, -startWeekday);
+      return Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
+    }
+
+    function dayEvents(date) {
+      const courseEvents = state.showMonthCourses
+        ? getWeekCoursesForDate(date)
+            .map(course => ({
+              id: `course-${course.id}-${dateKey(date)}`,
+              title: course.name,
+              type: 'course',
+              start: course.start,
+              end: course.end
+            }))
+        : [];
+      const customEvents = allEvents()
+        .filter(event => eventMatchesDate(event, date))
+        .filter(event => event.type === 'exam' ? state.showMonthExams : false)
+        .map(event => ({
+          id: event.id,
+          title: event.title,
+          type: event.type,
+          start: event.start,
+          end: event.end,
+          course: event.course || ''
+        }));
+      return [...courseEvents, ...customEvents].sort((a, b) => minutesFromTime(a.start) - minutesFromTime(b.start));
+    }
+
+    function dayTodos(date) {
+      const courseTodos = getWeekCoursesForDate(date)
+        .flatMap(course => getCourseTodos(course.name).map((todo, index) => ({
+          id: `todo-${course.id}-${index}-${dateKey(date)}`,
+          title: todo,
+          course: course.name
+        })));
+      const taskEvents = allEvents()
+        .filter(event => event.date === dateKey(date))
+        .filter(event => event.type === 'task')
+        .map(event => ({
+          id: `task-${event.id}`,
+          title: event.title,
+          course: event.course || '事项'
+        }));
+      return [...courseTodos, ...taskEvents];
+    }
+
+    function rangesOverlap(startA, endA, startB, endB) {
+      return startA < endB && endA > startB;
+    }
+
+    function findConflictingCourses(draft) {
+      if (!draft?.date || !draft?.start || !draft?.end) return [];
+      const draftDate = parseDateKey(draft.date);
+      const dayIndex = (draftDate.getDay() + 6) % 7;
+      const start = minutesFromTime(draft.start);
+      const end = minutesFromTime(draft.end);
+      return BASE_COURSES.map(course => getCourseInstanceForDate(course, draftDate)).filter(course => {
+        if (course.day !== dayIndex) return false;
+        return rangesOverlap(start, end, minutesFromTime(course.start), minutesFromTime(course.end));
+      });
+    }
+
+    function addManualEvent(draft, embeddedCourseId = null) {
+      const linkedCourse = embeddedCourseId
+        ? getCourseById(embeddedCourseId)
+        : (draft.course.trim() ? getCourseByName(draft.course.trim()) : null);
+      state.userEvents.push({
+        id: `u-${Date.now()}`,
+        title: draft.title.trim(),
+        date: draft.date,
+        start: draft.start,
+        end: draft.end,
+        type: draft.type,
+        course: linkedCourse ? linkedCourse.name : draft.course.trim(),
+        note: draft.note.trim(),
+        embeddedCourseId: embeddedCourseId || null
+      });
+      state.importModalMode = null;
+      state.manualDraft = null;
+      state.pendingConflictDraft = null;
+      state.pendingConflictCourseIds = [];
+      state.importError = '';
+    }
+
+    function openQuickAdd(date, startTime) {
+      state.importModalMode = 'manual';
+      state.manualDraft = {
+        title: '',
+        date: dateKey(date),
+        start: startTime,
+        end: timeFromMinutes(Math.min(minutesFromTime(startTime) + 60, 23 * 60 + 30)),
+        type: 'general',
+        course: '',
+        note: ''
+      };
+      state.pendingConflictDraft = null;
+      state.pendingConflictCourseIds = [];
+      state.importError = '';
+      render();
+    }
+
+    function openImportModal(mode) {
+      state.importModalMode = mode;
+      state.importError = '';
+      state.showImportMenu = false;
+      state.pendingConflictDraft = null;
+      state.pendingConflictCourseIds = [];
+      if (!state.manualDraft || mode !== 'manual') {
+        state.manualDraft = {
+          title: '',
+          date: dateKey(state.selectedDate),
+          start: '09:00',
+          end: '10:00',
+          type: 'general',
+          course: '',
+          note: ''
+        };
+      }
+      render();
+    }
+
+    function createEventFromManualDraft() {
+      const draft = state.manualDraft;
+      if (!draft || !draft.title.trim()) {
+        state.importError = '请先填写事项名称。';
+        render();
+        return;
+      }
+      const start = minutesFromTime(draft.start);
+      const end = minutesFromTime(draft.end);
+      if (end <= start) {
+        state.importError = '结束时间需要晚于开始时间。';
+        render();
+        return;
+      }
+      const conflicts = findConflictingCourses(draft);
+      if (conflicts.length) {
+        state.pendingConflictDraft = { ...draft };
+        state.pendingConflictCourseIds = conflicts.map(course => course.id);
+        state.importError = '';
+        render();
+        return;
+      }
+      addManualEvent(draft);
+      showToast('事项已添加');
+    }
+
+    function importFromCsv(text) {
+      const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      if (lines.length < 2) {
+        throw new Error('CSV 至少需要标题行和一行数据。');
+      }
+      const headers = lines[0].split(',').map(item => item.trim().toLowerCase());
+      const rows = lines.slice(1).map(line => line.split(',').map(item => item.trim()));
+      const created = [];
+      rows.forEach((row, rowIndex) => {
+        const value = Object.fromEntries(headers.map((header, index) => [header, row[index] || '']));
+        if (!value.title || !value.date || !value.start || !value.end) {
+          throw new Error(`第 ${rowIndex + 2} 行缺少必要字段。`);
+        }
+        created.push({
+          id: `csv-${Date.now()}-${rowIndex}`,
+          title: value.title,
+          date: value.date,
+          start: value.start,
+          end: value.end,
+          type: value.type || 'general',
+          course: value.course || '',
+          note: value.note || ''
+        });
+      });
+      return created;
+    }
+
+    function importFromJson(text) {
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) {
+        throw new Error('JSON 需要是一个数组。');
+      }
+      return parsed.map((item, index) => {
+        if (!item.title || !item.date || !item.start || !item.end) {
+          throw new Error(`第 ${index + 1} 项缺少必要字段。`);
+        }
+        return {
+          id: `json-${Date.now()}-${index}`,
+          title: item.title,
+          date: item.date,
+          start: item.start,
+          end: item.end,
+          type: item.type || 'general',
+          course: item.course || '',
+          note: item.note || ''
+        };
+      });
+    }
+
+    function importFromIcs(text) {
+      const blocks = text.split('BEGIN:VEVENT').slice(1);
+      if (!blocks.length) {
+        throw new Error('没有找到 VEVENT。');
+      }
+      return blocks.map((block, index) => {
+        const summary = pickIcsValue(block, 'SUMMARY');
+        const dtStart = pickIcsValue(block, 'DTSTART');
+        const dtEnd = pickIcsValue(block, 'DTEND');
+        if (!summary || !dtStart || !dtEnd) {
+          throw new Error(`第 ${index + 1} 个 VEVENT 缺少 SUMMARY 或 DTSTART/DTEND。`);
+        }
+        return {
+          id: `ics-${Date.now()}-${index}`,
+          title: summary,
+          date: dtStart.slice(0, 4) + '-' + dtStart.slice(4, 6) + '-' + dtStart.slice(6, 8),
+          start: dtStart.length >= 13 ? `${dtStart.slice(9, 11)}:${dtStart.slice(11, 13)}` : '09:00',
+          end: dtEnd.length >= 13 ? `${dtEnd.slice(9, 11)}:${dtEnd.slice(11, 13)}` : '10:00',
+          type: 'general',
+          course: '',
+          note: ''
+        };
+      });
+    }
+
+    function pickIcsValue(block, key) {
+      const line = block.split(/\r?\n/).find(row => row.startsWith(`${key}:`) || row.startsWith(`${key};`));
+      if (!line) return '';
+      return line.split(':').slice(1).join(':').trim();
+    }
+
+    function runTextImport() {
+      try {
+        if (!state.importText.trim()) {
+          state.importError = '请先粘贴内容。';
+          render();
+          return;
+        }
+        let created = [];
+        if (state.importModalMode === 'csv') {
+          created = importFromCsv(state.importText);
+        } else if (state.importModalMode === 'json') {
+          created = importFromJson(state.importText);
+        } else if (state.importModalMode === 'ics') {
+          created = importFromIcs(state.importText);
+        }
+        state.userEvents.push(...created);
+        state.importText = '';
+        state.importError = '';
+        state.importModalMode = null;
+        showToast(`已导入 ${created.length} 条事项`);
+      } catch (error) {
+        state.importError = error.message || '导入失败。';
+        render();
+      }
+    }
+
+    function renderIcon(name) {
+      if (name === 'theme-light') {
+        return `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"></circle>
+            <path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'theme-dark') {
+        return `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'import') {
+        return `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 4v12M8 12l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'filter') {
+        return `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'left') {
+        return `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'right') {
+        return `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'today') {
+        return `
+          <span aria-hidden="true" style="font-size:12px;line-height:1;">↩</span>
+        `;
+      }
+      if (name === 'flip') {
+        return `
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7.2 7.6C8.4 6.4 10.1 5.7 12 5.7c3.2 0 5.9 2.2 6.6 5.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M18.8 6.9v4h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M16.8 16.4c-1.2 1.2-2.9 1.9-4.8 1.9-3.2 0-5.9-2.2-6.6-5.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M5.2 17.1v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'pin') {
+        return `
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 4l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M14 5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M9 10l-4 1 8 8 1-4 5-5-5-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M9 15l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        `;
+      }
+      if (name === 'check') {
+        return `
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+            <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `;
+      }
+      return '';
+    }
+
+    function renderHeader() {
+      return `
+        <div class="header">
+          <div class="header-top">
+            <div class="header-main">
+              <div class="week-title">
+                <button class="arrow-button" data-action="prev-week" aria-label="上一周">${renderIcon('left')}</button>
+                <span class="week-label">第 ${currentWeekNumber()} 周</span>
+                <button class="arrow-button" data-action="next-week" aria-label="下一周">${renderIcon('right')}</button>
+              </div>
+              <div class="term-label">${SEMESTER_LABEL}</div>
+            </div>
+            <div class="icon-actions">
+              <button class="icon-button ${state.darkMode ? 'active' : ''}" data-action="toggle-theme" aria-label="浅色深色模式">
+                ${renderIcon(state.darkMode ? 'theme-dark' : 'theme-light')}
+              </button>
+              <button class="icon-button ${state.showFilterMenu ? 'active' : ''}" data-action="toggle-filter-menu" aria-label="筛选">${renderIcon('filter')}</button>
+              <div style="position:relative;">
+                <button class="icon-button ${state.showImportMenu ? 'active' : ''}" data-action="toggle-import-menu" aria-label="导入">${renderIcon('import')}</button>
+                ${state.showImportMenu ? `
+                  <div class="popover" data-popover="import">
+                    <div class="popover-title">导入来源</div>
+                    <button class="popover-row" data-action="open-import" data-mode="manual">手动录入</button>
+                    <button class="popover-row" data-action="open-import" data-mode="csv">粘贴 CSV</button>
+                    <button class="popover-row" data-action="open-import" data-mode="json">粘贴 JSON</button>
+                    <button class="popover-row" data-action="open-import" data-mode="ics">导入 iCal / ICS</button>
+                  </div>
+                ` : ''}
+                ${state.showFilterMenu ? `
+                  <div class="popover" data-popover="filter" style="right:38px;">
+                    <div class="popover-title">视图筛选</div>
+                    <button class="popover-row" data-action="toggle-month-courses">
+                      <span>显示课程</span>
+                      <span class="toggle-pill ${state.showMonthCourses ? 'on' : ''}"></span>
+                    </button>
+                    <button class="popover-row" data-action="toggle-month-exams">
+                      <span>显示考试</span>
+                      <span class="toggle-pill ${state.showMonthExams ? 'on' : ''}"></span>
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+              <button class="today-chip" data-action="go-today">${renderIcon('today')}<span>今天</span></button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDayStrip() {
+      const dates = displayedDates();
+      return `
+        <div class="day-strip">
+          <div class="month-label">${currentMonthLabel()}</div>
+          ${dates.map(date => {
+            const selected = sameDay(date, state.selectedDate);
+            const past = isPastDay(date);
+            const dayColor = state.darkMode
+              ? (past ? '#77777f' : (selected ? '#f5f5f7' : '#b4b4bc'))
+              : (past ? '#bbb' : (selected ? '#555' : '#8a8a8e'));
+            const dateColor = state.darkMode
+              ? (past ? '#909099' : (selected ? '#ffffff' : '#ececf1'))
+              : (past ? '#c4c4c4' : (selected ? '#555' : '#1a1a1a'));
+            const weight = selected ? 800 : 500;
+            return `
+              <button class="day-header" data-action="select-date" data-date="${dateKey(date)}">
+                <div class="day-name" style="color:${dayColor}">${DAYS_SHORT[(date.getDay() + 6) % 7]}</div>
+                <div class="day-number" style="color:${dateColor};font-weight:${weight}">${date.getDate()}</div>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderEventCard(event) {
+      const top = ((minutesFromTime(event.start) - DAY_START_HOUR * 60) / 60) * PX_PER_HOUR + 1;
+      const height = durationPx(event.start, event.end);
+      const sub = event.course ? `${event.course} · ${event.start}` : `${event.start} - ${event.end}`;
+      return `
+        <div class="event-card" data-action="open-event-detail" data-event-id="${event.id}" style="top:${top}px;height:${height}px;cursor:pointer;">
+          <div class="event-card-title">${event.title}</div>
+          <div class="event-card-sub">${sub}</div>
+        </div>
+      `;
+    }
+
+    function renderEmbeddedEvent(course, event, cardHeight) {
+      const courseStart = minutesFromTime(course.start);
+      const courseEnd = minutesFromTime(course.end);
+      const overlapStart = Math.max(minutesFromTime(event.start), courseStart);
+      const overlapEnd = Math.min(minutesFromTime(event.end), courseEnd);
+      const rawTop = ((overlapStart - courseStart) / 60) * PX_PER_HOUR + 22;
+      const top = Math.min(Math.max(rawTop, 22), Math.max(cardHeight - 26, 4));
+      const rawHeight = Math.max(((overlapEnd - overlapStart) / 60) * PX_PER_HOUR - 2, 22);
+      const height = Math.min(rawHeight, Math.max(cardHeight - top - 4, 20));
+      return `
+        <div class="embedded-event" data-action="open-event-detail" data-event-id="${event.id}" style="top:${top}px;height:${height}px;">
+          <div class="embedded-event-title">${event.title}</div>
+        </div>
+      `;
+    }
+
+    function renderCourseCard(course, date, embeddedEvents = [], options = {}) {
+      const detail = COURSE_DETAILS[course.name] || {};
+      const todos = getCourseTodos(course.name);
+      const doneMap = getDoneMap(course.name);
+      const hasTodos = todos.length > 0;
+      const flipped = state.flippedCards.has(course.id);
+      const top = courseTopPx(course);
+      const height = durationPx(course.start, course.end);
+      const bg = CARD_COLORS[course.ci % CARD_COLORS.length];
+      const visibleTodos = todos.slice(0, Math.max(1, Math.floor((height - 18) / 12)));
+      const courseEmbeddedEvents = embeddedEvents.filter(event => event.embeddedCourseId === course.id && event.date === dateKey(date));
+      const wrapClass = [
+        'card-wrap',
+        options.dragging ? 'dragging' : '',
+        options.hidden ? 'source-hidden' : ''
+      ].filter(Boolean).join(' ');
+      const dateText = dateKey(date);
+      const wrapStyle = options.inlineGhost
+        ? `top:0;height:${height}px;left:0;right:0;`
+        : `top:${top}px;height:${height}px;`;
+      return `
+        <div class="${wrapClass}" data-course-id="${course.id}" data-date="${dateText}" data-has-todos="${hasTodos ? 'true' : 'false'}" style="${wrapStyle}">
+          <div class="card-flip-inner ${flipped ? 'flipped' : ''}">
+            <div class="card-face card-front" style="background:${bg}">
+              <div class="course-title">${course.name}</div>
+              <div class="course-meta">${detail.room || '地点待定'} · ${detail.teacher || course.teacher}</div>
+              <div class="card-pin" style="color:#555">${renderIcon('pin')}</div>
+              ${courseEmbeddedEvents.map(event => renderEmbeddedEvent(course, event, height)).join('')}
+            </div>
+            <div class="card-face card-back">
+              <div class="todo-title">${course.name}</div>
+              ${visibleTodos.map((todo, index) => `
+                <div class="todo-line" data-action="toggle-card-todo" data-course-name="${course.name}" data-index="${index}">
+                  <div class="todo-dot ${doneMap[index] ? 'done' : ''}"></div>
+                  <div class="todo-text ${doneMap[index] ? 'done' : ''}">${todo}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          ${options.hideActions ? '' : `
+            <button class="card-hit top" data-action="open-course-detail" data-course-id="${course.id}" data-date="${dateText}" aria-label="打开课程详情"></button>
+            <button class="card-hit bottom" data-action="${hasTodos ? 'flip-course-card' : 'open-course-detail'}" data-course-id="${course.id}" data-date="${dateText}" aria-label="${hasTodos ? '查看课程待办' : '打开课程详情'}"></button>
+          `}
+        </div>
+      `;
+    }
+
+    function dragColumnWidth() {
+      return `calc((100% - var(--time-width)) / 7 - 4px)`;
+    }
+
+    function dragColumnLeft(dayIndex) {
+      return `calc(var(--time-width) + ((100% - var(--time-width)) / 7) * ${dayIndex} + 2px)`;
+    }
+
+    function renderDragOverlay() {
+      if (!state.dragCourseDraft) return '';
+      const sourceDate = parseDateKey(state.dragCourseDraft.sourceDate);
+      const dragDate = parseDateKey(state.dragCourseDraft.previewDate);
+      const sourceCourse = getCourseInstanceForDate(state.dragCourseDraft.courseId, sourceDate);
+      const course = getCourseInstanceForDate(state.dragCourseDraft.courseId, dragDate);
+      if (!course) return '';
+      const ghostCourse = {
+        ...course,
+        day: state.dragCourseDraft.previewDay,
+        start: state.dragCourseDraft.previewStart,
+        end: state.dragCourseDraft.previewEnd
+      };
+      const sourceHeight = durationPx(state.dragCourseDraft.sourceStart, state.dragCourseDraft.sourceEnd);
+      const targetHeight = durationPx(state.dragCourseDraft.previewStart, state.dragCourseDraft.previewEnd);
+      const top = state.dragCourseDraft.ghostTop;
+      const left = state.dragCourseDraft.ghostLeft;
+      const height = durationPx(ghostCourse.start, ghostCourse.end);
+      const transform = `translate3d(${left}px, ${top}px, 0) rotateX(${state.dragCourseDraft.tiltX}deg) rotateY(${state.dragCourseDraft.tiltY}deg) scale(1.02)`;
+      return `
+        <div class="drag-guide-layer">
+          <div class="drag-placeholder" style="left:${dragColumnLeft(state.dragCourseDraft.sourceDay)};width:${dragColumnWidth()};top:${courseTopPx({ start: state.dragCourseDraft.sourceStart })}px;height:${sourceHeight}px;"></div>
+          <div class="drag-target" style="display:none;left:${dragColumnLeft(state.dragCourseDraft.previewDay)};width:${dragColumnWidth()};top:${courseTopPx({ start: state.dragCourseDraft.previewStart })}px;height:${targetHeight}px;"></div>
+        </div>
+        <div class="drag-ghost-layer">
+          <div class="drag-ghost" id="drag-ghost" style="height:${height}px;transform:${transform};">
+            ${renderCourseCard(ghostCourse, dragDate, [], { dragging: true, hideActions: true, inlineGhost: true })}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWeekView() {
+      const dates = displayedDates();
+      const periodBoundaries = [...new Set([
+        ...PERIOD_SLOTS.map(slot => minutesFromTime(slot.start)),
+        minutesFromTime(PERIOD_SLOTS[PERIOD_SLOTS.length - 1].end)
+      ])];
+      return `
+        <div class="week-view" id="week-view">
+          <div class="week-grid" id="week-grid">
+            <div class="time-column">
+              ${PERIOD_SLOTS.map(slot => `
+                <div class="time-label" style="top:${topPxFromMinutes(minutesFromTime(slot.start))}px">
+                  <span class="time-label-period">第${slot.number}节</span>
+                  <span class="time-label-range">${slot.start}</span>
+                </div>
+              `).join('')}
+            </div>
+            ${dates.map((date, dayIndex) => {
+              const currentDateKey = dateKey(date);
+              const courses = state.showMonthCourses
+                ? getWeekCoursesForDate(date)
+                : [];
+              const dayEvents = allEvents().filter(event => {
+                if (event.date !== dateKey(date)) return false;
+                if (event.type === 'exam') return state.showMonthExams;
+                return true;
+              });
+              const embeddedEvents = state.showMonthCourses
+                ? dayEvents.filter(event => event.embeddedCourseId)
+                : [];
+              const events = state.showMonthCourses
+                ? dayEvents.filter(event => !event.embeddedCourseId)
+                : dayEvents;
+              const selected = sameDay(date, state.selectedDate);
+              return `
+                <div class="day-column ${selected ? 'selected' : ''}" data-date="${dateKey(date)}" data-day-index="${dayIndex}">
+                  ${periodBoundaries.map((boundary, index) => `
+                    <div class="hour-line ${index === 0 || index === 4 || index === 8 ? 'major' : ''}" style="top:${topPxFromMinutes(boundary)}px"></div>
+                  `).join('')}
+                  ${courses.map(course => renderCourseCard(
+                    course,
+                    date,
+                    embeddedEvents,
+                    state.dragCourseDraft
+                      && course.id === state.dragCourseDraft.courseId
+                      && currentDateKey === state.dragCourseDraft.sourceDate
+                      ? { hidden: true }
+                      : {}
+                  )).join('')}
+                  ${events.map(renderEventCard).join('')}
+                </div>
+              `;
+            }).join('')}
+            ${renderDragOverlay()}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMonthView() {
+      const target = state.selectedDate;
+      const dates = monthGridDates(target);
+      const title = `${target.getFullYear()} 年 ${MONTH_NAMES[target.getMonth()]}`;
+      const bannerText = state.monthTodoMode
+        ? '待办背面'
+        : ([state.showMonthCourses ? '课程' : '', state.showMonthExams ? '考试' : ''].filter(Boolean).join(' / ') || '仅看日历');
+      return `
+        <div class="month-view">
+          <div class="month-banner">
+            <div class="month-banner-title">${title}</div>
+            <div class="muted-note">${bannerText}</div>
+          </div>
+          <div class="month-weekdays">
+            ${DAYS_SHORT.map(day => `<div class="month-weekday">${day}</div>`).join('')}
+          </div>
+          <div class="month-grid">
+            ${dates.map((date) => {
+              const inMonth = date.getMonth() === target.getMonth();
+              const selected = sameDay(date, state.selectedDate);
+              const past = isPastDay(date);
+              const events = dayEvents(date);
+              const todos = dayTodos(date);
+              const frontHtml = (state.showMonthCourses || state.showMonthExams)
+                ? `
+                    <div class="cell-events">
+                      ${events.slice(0, 2).map((event, eventIndex) => `
+                        <div class="cell-event" style="background:${MONTH_EVENT_COLORS[eventIndex % MONTH_EVENT_COLORS.length]}">
+                          ${event.title}
+                        </div>
+                      `).join('')}
+                      ${events.length > 2 ? `<div class="cell-more">+${events.length - 2} 项</div>` : ''}
+                    </div>
+                  `
+                : '<div class="cell-empty"></div>';
+              const backHtml = `
+                <div class="cell-events">
+                      ${todos.slice(0, 2).map((todo, todoIndex) => `
+                        <div class="cell-event" style="background:${MONTH_EVENT_COLORS[todoIndex % MONTH_EVENT_COLORS.length]}">
+                          ${todo.title}
+                        </div>
+                      `).join('')}
+                  ${todos.length > 2 ? `<div class="cell-more">+${todos.length - 2} 项</div>` : ''}
+                </div>
+              `;
+              return `
+                <button
+                  class="calendar-cell ${inMonth ? '' : 'other-month'} ${selected ? 'selected' : ''} ${past ? 'past' : ''} ${state.monthTodoMode ? 'flipped' : ''}"
+                  data-action="select-month-date"
+                  data-date="${dateKey(date)}"
+                >
+                  <div class="month-cell-inner">
+                    <div class="month-cell-face front">
+                      <div class="cell-date">${date.getDate()}</div>
+                      ${frontHtml}
+                    </div>
+                    <div class="month-cell-face back">
+                      <div class="cell-date">${date.getDate()}</div>
+                      ${backHtml}
+                    </div>
+                  </div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBottomNav() {
+      return `
+        <div class="bottom-nav">
+          <button class="tab-button active">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="17" rx="3" stroke="currentColor" stroke-width="1.8"></rect>
+              <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.8"></line>
+              <line x1="8" y1="4" x2="8" y2="7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></line>
+              <line x1="16" y1="4" x2="16" y2="7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></line>
+            </svg>
+            <span class="tab-label">课表</span>
+          </button>
+          <button class="tab-button">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 19V6.5L12 3l8 3.5V19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+              <rect x="9" y="13" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.8"></rect>
+            </svg>
+            <span class="tab-label">课程</span>
+          </button>
+          <button class="tab-button">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+            <span class="tab-label">我的</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function renderCourseDetailOverlay() {
+      const detailDate = state.detailCourseDate ? parseDateKey(state.detailCourseDate) : activeWeekDate();
+      const course = getCourseInstanceForDate(state.detailCourseId, detailDate);
+      if (!course) return '';
+      const detail = COURSE_DETAILS[course.name] || {};
+      const todos = getCourseTodos(course.name);
+      const done = getDoneMap(course.name);
+      return `
+        <div class="sheet-overlay" data-action="close-detail-overlay">
+          <div class="sheet" data-stop-close="true">
+            <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+            <div class="sheet-header">
+              <div>
+                <div class="sheet-title">${course.name}</div>
+                <div class="sheet-subtitle">${detail.teacher || course.teacher}</div>
+              </div>
+              <button class="modal-close" data-action="close-detail">×</button>
+            </div>
+            <div class="meta-row">
+              <div class="meta-block">
+                <div class="meta-label">时间</div>
+                <div class="meta-value">${formatRange(course.start, course.end)}</div>
+              </div>
+              <div class="meta-block">
+                <div class="meta-label">教室</div>
+                <div class="meta-value">${detail.room || '—'}</div>
+              </div>
+              <div class="meta-block">
+                <div class="meta-label">学分</div>
+                <div class="meta-value">${detail.credits ?? '—'}</div>
+              </div>
+            </div>
+            ${detail.note ? `
+              <div class="sheet-section">
+                <div class="section-label">备注</div>
+                <div class="sheet-note">${detail.note}</div>
+              </div>
+            ` : ''}
+            <div class="sheet-section">
+              <div class="section-head">
+                <div class="section-label">待办</div>
+                <button class="ghost-button" data-action="open-todo-editor" data-course-id="${course.id}">编辑</button>
+              </div>
+              ${todos.map((todo, index) => `
+                <div class="sheet-todo" data-action="toggle-detail-todo" data-course-name="${course.name}" data-index="${index}">
+                  <button class="checkbox-button ${done[index] ? 'done' : ''}">
+                    ${done[index] ? renderIcon('check') : ''}
+                  </button>
+                  <div class="sheet-todo-text ${done[index] ? 'done' : ''}">${todo}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTodoEditorOverlay() {
+      const course = getCourseById(state.editingCourseId);
+      if (!course) return '';
+      const todos = getCourseTodos(course.name);
+      const done = getDoneMap(course.name);
+      return `
+        <div class="overlay" data-action="close-editor-overlay">
+          <div class="editor-card" data-stop-close="true">
+            <div class="editor-header">
+              <div>
+                <div class="sheet-title" style="font-size:15px">编辑待办</div>
+                <div class="sheet-subtitle">${course.name}</div>
+              </div>
+              <button class="modal-close" data-action="close-todo-editor">×</button>
+            </div>
+            <div class="editor-input-row">
+              <input id="todo-draft-input" type="text" placeholder="添加新的待办">
+              <button class="small-button" data-action="submit-todo" data-course-name="${course.name}">添加</button>
+            </div>
+            <div class="editor-list">
+              ${todos.length ? todos.map((todo, index) => `
+                <div class="editor-item">
+                  <button class="checkbox-button ${done[index] ? 'done' : ''}" data-action="toggle-editor-todo" data-course-name="${course.name}" data-index="${index}">
+                    ${done[index] ? renderIcon('check') : ''}
+                  </button>
+                  <div class="editor-item-text ${done[index] ? 'done' : ''}">${todo}</div>
+                  <button class="todo-remove" data-action="delete-todo" data-course-name="${course.name}" data-index="${index}">×</button>
+                </div>
+              `).join('') : `<div class="empty-note">暂无待办</div>`}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEventDetailOverlay() {
+      const event = getEventById(state.detailEventId);
+      if (!event) return '';
+      const typeLabel = event.type === 'exam' ? '考试' : (event.type === 'task' ? '待办事项' : '一般事项');
+      return `
+        <div class="sheet-overlay" data-action="close-detail-overlay">
+          <div class="sheet" data-stop-close="true">
+            <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+            <div class="sheet-header">
+              <div>
+                <div class="sheet-title">${event.title}</div>
+                <div class="sheet-subtitle">${event.course || typeLabel}</div>
+              </div>
+              <button class="modal-close" data-action="close-detail">×</button>
+            </div>
+            <div class="meta-row">
+              <div class="meta-block">
+                <div class="meta-label">时间</div>
+                <div class="meta-value">${formatRange(event.start, event.end)}</div>
+              </div>
+              <div class="meta-block">
+                <div class="meta-label">日期</div>
+                <div class="meta-value">${event.date}</div>
+              </div>
+              <div class="meta-block">
+                <div class="meta-label">类型</div>
+                <div class="meta-value">${typeLabel}</div>
+              </div>
+            </div>
+            <div class="sheet-section">
+              <div class="section-label">备注</div>
+              <div class="sheet-note">${event.note || '暂无备注'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderImportOverlay() {
+      if (!state.importModalMode) return '';
+      const mode = state.importModalMode;
+      const draft = state.manualDraft || {
+        title: '',
+        date: dateKey(state.selectedDate),
+        start: '09:00',
+        end: '10:00',
+        type: 'general',
+        course: '',
+        note: ''
+      };
+      const titles = {
+        manual: '手动录入',
+        csv: '导入 CSV',
+        json: '导入 JSON',
+        ics: '导入 iCal / ICS'
+      };
+      return `
+        <div class="overlay" data-action="close-import-overlay">
+          <div class="import-card" data-stop-close="true">
+            <div class="import-header">
+              <div>
+                <div class="sheet-title" style="font-size:15px">${titles[mode]}</div>
+                <div class="sheet-subtitle">右上角导入入口现在可直接使用</div>
+              </div>
+              <button class="modal-close" data-action="close-import">×</button>
+            </div>
+            <div class="import-tabs">
+              ${['manual', 'csv', 'json', 'ics'].map(item => `
+                <button class="import-tab ${item === mode ? 'active' : ''}" data-action="switch-import-mode" data-mode="${item}">
+                  ${titles[item]}
+                </button>
+              `).join('')}
+            </div>
+            <div class="import-body">
+              ${mode === 'manual' ? `
+                <div class="import-grid">
+                  <label class="field">
+                    <span class="field-label">事项名称</span>
+                    <input id="manual-title" value="${escapeHtml(draft.title)}" placeholder="例如：导师会面">
+                  </label>
+                  <label class="field">
+                    <span class="field-label">日期</span>
+                    <input id="manual-date" type="date" value="${escapeHtml(draft.date)}">
+                  </label>
+                  <div class="import-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+                    <label class="field">
+                      <span class="field-label">开始时间</span>
+                      <input id="manual-start" type="time" value="${escapeHtml(draft.start)}">
+                    </label>
+                    <label class="field">
+                      <span class="field-label">结束时间</span>
+                      <input id="manual-end" type="time" value="${escapeHtml(draft.end)}">
+                    </label>
+                  </div>
+                  <label class="field">
+                    <span class="field-label">类型</span>
+                    <select id="manual-type">
+                      <option value="general" ${draft.type === 'general' ? 'selected' : ''}>一般事项</option>
+                      <option value="task" ${draft.type === 'task' ? 'selected' : ''}>待办事项</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span class="field-label">关联课程（可选）</span>
+                    <select id="manual-course">
+                      <option value="">不关联课程</option>
+                      ${BASE_COURSES.map(course => `<option value="${escapeHtml(course.name)}" ${draft.course === course.name ? 'selected' : ''}>${course.name}</option>`).join('')}
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span class="field-label">备注</span>
+                    <textarea id="manual-note" placeholder="补充说明">${escapeHtml(draft.note)}</textarea>
+                  </label>
+                </div>
+              ` : `
+                <div class="field">
+                  <span class="field-label">${mode === 'csv' ? '格式：title,date,start,end,type,course,note' : mode === 'json' ? '格式：[{ "title": "...", "date": "2026-04-25", "start": "09:00", "end": "10:00" }]' : '粘贴 .ics 文本，支持 VEVENT / SUMMARY / DTSTART / DTEND'}</span>
+                  <textarea id="import-textarea" placeholder="${mode === 'csv' ? 'title,date,start,end,type,course,note' : mode === 'json' ? '[...]' : 'BEGIN:VCALENDAR'}">${escapeHtml(state.importText)}</textarea>
+                </div>
+              `}
+              ${state.importError ? `<div class="muted-note" style="color:#d04a4a;margin-top:10px;">${state.importError}</div>` : ''}
+            </div>
+            <div class="import-footer">
+              <button class="ghost-button" data-action="close-import">取消</button>
+              <button class="small-button" data-action="${mode === 'manual' ? 'submit-manual-import' : 'submit-text-import'}">${mode === 'manual' ? '添加' : '导入'}</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderConflictConfirmOverlay() {
+      if (!state.pendingConflictDraft || !state.pendingConflictCourseIds.length) return '';
+      const courseNames = state.pendingConflictCourseIds
+        .map(id => getCourseById(id)?.name)
+        .filter(Boolean);
+      const summary = courseNames.join('、');
+      return `
+        <div class="overlay" data-action="close-conflict-confirm">
+          <div class="confirm-card" data-stop-close="true">
+            <div class="confirm-title">时间和课程冲突</div>
+            <div class="confirm-text">
+              这个时间和 ${summary} 冲突。<br>
+              如果继续添加，我们会把这条事项内嵌到课程卡片里。
+            </div>
+            <div class="confirm-actions">
+              <button class="ghost-button" data-action="cancel-conflict-add">再改一下</button>
+              <button class="small-button" data-action="confirm-conflict-add">仍然添加</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCourseMoveConfirmOverlay() {
+      if (!state.pendingCourseMove) return '';
+      const course = getCourseById(state.pendingCourseMove.courseId);
+      if (!course) return '';
+      return `
+        <div class="overlay" data-action="cancel-course-move">
+          <div class="confirm-card" data-stop-close="true">
+            <div class="confirm-title">课程时间已调整</div>
+            <div class="confirm-text">
+              ${course.name} 将移动到 ${DAYS_SHORT[state.pendingCourseMove.day]} ${formatRange(state.pendingCourseMove.start, state.pendingCourseMove.end)}。<br>
+              这次调整只应用到当前周，还是同步到所有周次？
+            </div>
+            <div class="confirm-actions stacked">
+              <button class="small-button" data-action="apply-course-move-week">仅本周</button>
+              <button class="small-button" data-action="apply-course-move-all">所有周数</button>
+              <button class="ghost-button" data-action="cancel-course-move">取消</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderNotice() {
+      return state.toast ? `<div class="notice">${state.toast}</div>` : '';
+    }
+
+    function render() {
+      const screen = document.querySelector('.screen');
+      if (screen) {
+        screen.classList.toggle('dark-mode', state.darkMode);
+      }
+      app.innerHTML = `
+        ${renderHeader()}
+        ${renderDayStrip()}
+        <div class="view-handle" id="view-handle">
+          <div class="view-handle-bar"></div>
+        </div>
+        <div class="calendar-shell">
+          ${state.view === 'week' ? renderWeekView() : renderMonthView()}
+          ${renderCourseDetailOverlay()}
+          ${renderEventDetailOverlay()}
+          ${renderTodoEditorOverlay()}
+          ${renderImportOverlay()}
+          ${renderConflictConfirmOverlay()}
+          ${renderCourseMoveConfirmOverlay()}
+          ${renderNotice()}
+        </div>
+        ${renderBottomNav()}
+        <button class="fab" style="background:${state.darkMode ? '#000' : '#555'};color:#fff;" data-action="flip-all" aria-label="翻转全部">${renderIcon('flip')}</button>
+      `;
+      bindEvents();
+      if (state.view === 'week') {
+        requestAnimationFrame(restoreWeekViewScroll);
+      }
+    }
+
+    function bindEvents() {
+      app.querySelectorAll('[data-action]').forEach(element => {
+        element.addEventListener('click', handleActionClick);
+      });
+
+      app.querySelectorAll('.card-wrap[data-course-id]').forEach(card => {
+        card.addEventListener('pointerdown', startCourseCardPress);
+      });
+
+      app.querySelectorAll('[data-stop-close="true"]').forEach(element => {
+        element.addEventListener('click', event => event.stopPropagation());
+      });
+
+      const handle = document.getElementById('view-handle');
+      if (handle) {
+        handle.addEventListener('pointerdown', startDragSwitch);
+      }
+
+      const weekView = document.getElementById('week-view');
+      if (weekView) {
+        weekView.addEventListener('scroll', () => {
+          state.weekScrollTop = weekView.scrollTop;
+        }, { passive: true });
+      }
+
+      const weekGrid = document.getElementById('week-grid');
+      if (weekGrid) {
+        weekGrid.querySelectorAll('.day-column').forEach(column => {
+          column.addEventListener('click', handleEmptySlotClick);
+        });
+      }
+    }
+
+    function handleActionClick(event) {
+      const action = event.currentTarget.dataset.action;
+      const courseId = event.currentTarget.dataset.courseId;
+      const courseName = event.currentTarget.dataset.courseName;
+      const index = Number(event.currentTarget.dataset.index);
+      const mode = event.currentTarget.dataset.mode;
+      const date = event.currentTarget.dataset.date;
+      event.stopPropagation();
+
+      if (action === 'prev-week') {
+        state.weekOffset -= 1;
+        state.needsWeekScrollReset = true;
+        render();
+        return;
+      }
+      if (action === 'next-week') {
+        state.weekOffset += 1;
+        state.needsWeekScrollReset = true;
+        render();
+        return;
+      }
+      if (action === 'go-today') {
+        state.weekOffset = weekOffsetForDate(TODAY);
+        state.selectedDate = cloneDate(TODAY);
+        state.needsWeekScrollReset = true;
+        if (state.view === 'month') state.view = 'week';
+        render();
+        return;
+      }
+      if (action === 'toggle-theme') {
+        state.darkMode = !state.darkMode;
+        render();
+        return;
+      }
+      if (action === 'toggle-import-menu') {
+        state.showImportMenu = !state.showImportMenu;
+        state.showFilterMenu = false;
+        render();
+        return;
+      }
+      if (action === 'toggle-filter-menu') {
+        state.showFilterMenu = !state.showFilterMenu;
+        state.showImportMenu = false;
+        render();
+        return;
+      }
+      if (action === 'toggle-month-courses') {
+        state.showMonthCourses = !state.showMonthCourses;
+        render();
+        return;
+      }
+      if (action === 'toggle-month-exams') {
+        state.showMonthExams = !state.showMonthExams;
+        render();
+        return;
+      }
+      if (action === 'select-date' || action === 'select-month-date') {
+        setSelectedDate(parseDateKey(date));
+        if (action === 'select-month-date') {
+          state.weekOffset = weekOffsetForDate(parseDateKey(date));
+          state.needsWeekScrollReset = true;
+        }
+        if (state.view === 'month' && action === 'select-month-date') {
+          render();
+        }
+        return;
+      }
+      if (action === 'open-detail') {
+        openCourseDetail(courseId);
+        return;
+      }
+      if (action === 'open-course-detail') {
+        if (Date.now() - state.dragJustEndedAt < 250) return;
+        openCourseDetail(courseId, date);
+        return;
+      }
+      if (action === 'open-event-detail') {
+        openEventDetail(event.currentTarget.dataset.eventId);
+        return;
+      }
+      if (action === 'flip-card') {
+        toggleCardFlip(courseId);
+        return;
+      }
+      if (action === 'flip-course-card') {
+        if (Date.now() - state.dragJustEndedAt < 250) return;
+        toggleCardFlip(courseId);
+        return;
+      }
+      if (action === 'flip-all') {
+        toggleAllCards();
+        return;
+      }
+      if (action === 'toggle-card-todo' || action === 'toggle-detail-todo' || action === 'toggle-editor-todo') {
+        toggleTodoDone(courseName, index);
+        return;
+      }
+      if (action === 'close-detail-overlay' || action === 'close-detail') {
+        state.detailCourseId = null;
+        state.detailCourseDate = null;
+        state.detailEventId = null;
+        render();
+        return;
+      }
+      if (action === 'open-todo-editor') {
+        openTodoEditor(courseId);
+        return;
+      }
+      if (action === 'close-editor-overlay' || action === 'close-todo-editor') {
+        state.editingCourseId = null;
+        render();
+        return;
+      }
+      if (action === 'submit-todo') {
+        const input = document.getElementById('todo-draft-input');
+        if (input) {
+          addTodo(courseName, input.value);
+          input.value = '';
+        }
+        return;
+      }
+      if (action === 'delete-todo') {
+        deleteTodo(courseName, index);
+        return;
+      }
+      if (action === 'open-import') {
+        openImportModal(mode);
+        return;
+      }
+      if (action === 'close-import-overlay' || action === 'close-import') {
+        state.importModalMode = null;
+        state.manualDraft = null;
+        state.pendingConflictDraft = null;
+        state.pendingConflictCourseIds = [];
+        state.importError = '';
+        render();
+        return;
+      }
+      if (action === 'switch-import-mode') {
+        state.importModalMode = mode;
+        state.pendingConflictDraft = null;
+        state.pendingConflictCourseIds = [];
+        state.importError = '';
+        render();
+        return;
+      }
+      if (action === 'close-conflict-confirm' || action === 'cancel-conflict-add') {
+        state.pendingConflictDraft = null;
+        state.pendingConflictCourseIds = [];
+        render();
+        return;
+      }
+      if (action === 'confirm-conflict-add') {
+        if (!state.pendingConflictDraft || !state.pendingConflictCourseIds.length) return;
+        addManualEvent(state.pendingConflictDraft, state.pendingConflictCourseIds[0]);
+        showToast('已嵌入到冲突课程中');
+        return;
+      }
+      if (action === 'cancel-course-move') {
+        state.pendingCourseMove = null;
+        render();
+        return;
+      }
+      if (action === 'apply-course-move-week' || action === 'apply-course-move-all') {
+        applyPendingCourseMove(action === 'apply-course-move-all' ? 'all' : 'week');
+        return;
+      }
+      if (action === 'submit-manual-import') {
+        syncManualDraftFromInputs();
+        createEventFromManualDraft();
+        return;
+      }
+      if (action === 'submit-text-import') {
+        const textarea = document.getElementById('import-textarea');
+        state.importText = textarea ? textarea.value : state.importText;
+        runTextImport();
+      }
+    }
+
+    function syncManualDraftFromInputs() {
+      state.manualDraft = {
+        title: document.getElementById('manual-title')?.value || '',
+        date: document.getElementById('manual-date')?.value || dateKey(state.selectedDate),
+        start: document.getElementById('manual-start')?.value || '09:00',
+        end: document.getElementById('manual-end')?.value || '10:00',
+        type: document.getElementById('manual-type')?.value || 'general',
+        course: document.getElementById('manual-course')?.value || '',
+        note: document.getElementById('manual-note')?.value || ''
+      };
+    }
+
+    function clearCourseCardPress() {
+      if (!state.cardPress) return;
+      if (state.cardPress.timer) {
+        clearTimeout(state.cardPress.timer);
+      }
+      window.removeEventListener('pointermove', handleCourseCardPressMove);
+      window.removeEventListener('pointerup', finishCourseCardPress);
+      window.removeEventListener('pointercancel', cancelCourseCardPress);
+      state.cardPress = null;
+    }
+
+    function startCourseCardPress(event) {
+      if (event.button !== 0 || state.pendingCourseMove || state.dragCourseDraft) return;
+      if (event.target.closest('.embedded-event') || event.target.closest('.todo-line')) return;
+      const card = event.currentTarget;
+      const rect = card.getBoundingClientRect();
+      clearCourseCardPress();
+      state.cardPress = {
+        courseId: card.dataset.courseId,
+        date: card.dataset.date,
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        cardLeft: rect.left,
+        cardTop: rect.top,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top,
+        timer: setTimeout(() => beginCourseDrag(), 340)
+      };
+      window.addEventListener('pointermove', handleCourseCardPressMove);
+      window.addEventListener('pointerup', finishCourseCardPress);
+      window.addEventListener('pointercancel', cancelCourseCardPress);
+    }
+
+    function beginCourseDrag() {
+      if (!state.cardPress) return;
+      const dragDate = parseDateKey(state.cardPress.date);
+      const course = getCourseInstanceForDate(state.cardPress.courseId, dragDate);
+      const weekGrid = document.getElementById('week-grid');
+      if (!course) {
+        clearCourseCardPress();
+        return;
+      }
+      const gridRect = weekGrid ? weekGrid.getBoundingClientRect() : { left: 0, top: 0 };
+      const timeColumn = weekGrid ? weekGrid.querySelector('.time-column') : null;
+      const timeWidth = timeColumn ? timeColumn.getBoundingClientRect().width : 0;
+      const contentWidth = weekGrid ? Math.max(gridRect.width - timeWidth, 1) : 1;
+      const dayWidth = contentWidth / 7;
+      state.dragCourseDraft = {
+        courseId: course.id,
+        sourceDate: state.cardPress.date,
+        sourceDay: course.day,
+        hasMoved: false,
+        previewDate: state.cardPress.date,
+        previewDay: course.day,
+        sourceStart: course.start,
+        sourceEnd: course.end,
+        previewStart: course.start,
+        previewEnd: course.end,
+        durationMinutes: minutesFromTime(course.end) - minutesFromTime(course.start),
+        offsetX: state.cardPress.offsetX,
+        offsetY: state.cardPress.offsetY,
+        ghostLeft: timeWidth + course.day * dayWidth + 1,
+        ghostTop: courseTopPx(course),
+        tiltX: 0,
+        tiltY: 0,
+        lastClientX: state.cardPress.startX,
+        lastClientY: state.cardPress.startY
+      };
+      if (state.cardPress.timer) {
+        clearTimeout(state.cardPress.timer);
+        state.cardPress.timer = null;
+      }
+      render();
+    }
+
+    function handleCourseCardPressMove(event) {
+      if (!state.cardPress && !state.dragCourseDraft) return;
+      if (state.dragCourseDraft) {
+        updateCourseDragDraft(event);
+        return;
+      }
+      const dx = event.clientX - state.cardPress.startX;
+      const dy = event.clientY - state.cardPress.startY;
+      if (Math.hypot(dx, dy) > 8 && state.cardPress.timer) {
+        clearTimeout(state.cardPress.timer);
+        state.cardPress.timer = null;
+      }
+    }
+
+    function updateCourseDragDraft(event) {
+      const weekGrid = document.getElementById('week-grid');
+      if (!weekGrid || !state.dragCourseDraft) return;
+      const rect = weekGrid.getBoundingClientRect();
+      const timeColumn = weekGrid.querySelector('.time-column');
+      const timeWidth = timeColumn ? timeColumn.getBoundingClientRect().width : 0;
+      const contentWidth = Math.max(rect.width - timeWidth, 1);
+      const dayWidth = contentWidth / 7;
+      const rawX = event.clientX - rect.left - timeWidth;
+      const rawY = event.clientY - rect.top - state.dragCourseDraft.offsetY;
+      const dayIndex = Math.max(0, Math.min(6, Math.floor(rawX / dayWidth)));
+      const minTop = topPxFromMinutes(minutesFromTime(PERIOD_SLOTS[0].start));
+      const maxTop = topPxFromMinutes(minutesFromTime(PERIOD_SLOTS[PERIOD_SLOTS.length - 1].end) - state.dragCourseDraft.durationMinutes);
+      const clampedTop = Math.max(minTop, Math.min(rawY, maxTop));
+      const roughMinutes = DAY_START_HOUR * 60 + (clampedTop / PX_PER_HOUR) * 60;
+      const snappedStart = findNearestPeriodStart(roughMinutes, state.dragCourseDraft.durationMinutes);
+      const nextDate = displayedDates()[dayIndex];
+      const nextDateKey = dateKey(nextDate);
+      const nextStart = timeFromMinutes(snappedStart);
+      const nextEnd = timeFromMinutes(snappedStart + state.dragCourseDraft.durationMinutes);
+      const dx = event.clientX - state.dragCourseDraft.lastClientX;
+      const dy = event.clientY - state.dragCourseDraft.lastClientY;
+      const changed = state.dragCourseDraft.previewDay !== dayIndex
+        || state.dragCourseDraft.previewDate !== nextDateKey
+        || state.dragCourseDraft.previewStart !== nextStart
+        || state.dragCourseDraft.previewEnd !== nextEnd
+        || Math.abs(dx) > 0.5
+        || Math.abs(dy) > 0.5;
+      state.dragCourseDraft.previewDay = dayIndex;
+      state.dragCourseDraft.previewDate = nextDateKey;
+      state.dragCourseDraft.previewStart = nextStart;
+      state.dragCourseDraft.previewEnd = nextEnd;
+      state.dragCourseDraft.hasMoved = true;
+      state.dragCourseDraft.ghostLeft = event.clientX - rect.left - state.dragCourseDraft.offsetX + timeWidth;
+      state.dragCourseDraft.ghostTop = event.clientY - rect.top - state.dragCourseDraft.offsetY;
+      state.dragCourseDraft.tiltY = Math.max(-7, Math.min(7, dx * 0.35));
+      state.dragCourseDraft.tiltX = Math.max(-5, Math.min(5, -dy * 0.18));
+      state.dragCourseDraft.lastClientX = event.clientX;
+      state.dragCourseDraft.lastClientY = event.clientY;
+      if (changed) {
+        syncDragOverlayDom();
+      }
+    }
+
+    function syncDragOverlayDom() {
+      const ghost = document.getElementById('drag-ghost');
+      if (!ghost || !state.dragCourseDraft) return;
+      const sourceGuide = document.querySelector('.drag-guide-layer .drag-placeholder');
+      const targetGuide = document.querySelector('.drag-guide-layer .drag-target');
+      const left = state.dragCourseDraft.ghostLeft;
+      const top = state.dragCourseDraft.ghostTop;
+      ghost.style.transform = `translate3d(${left}px, ${top}px, 0) rotateX(${state.dragCourseDraft.tiltX}deg) rotateY(${state.dragCourseDraft.tiltY}deg) scale(1.02)`;
+
+      if (sourceGuide) {
+        sourceGuide.style.left = dragColumnLeft(state.dragCourseDraft.sourceDay);
+        sourceGuide.style.width = dragColumnWidth();
+        sourceGuide.style.top = `${courseTopPx({ start: state.dragCourseDraft.sourceStart })}px`;
+        sourceGuide.style.height = `${durationPx(state.dragCourseDraft.sourceStart, state.dragCourseDraft.sourceEnd)}px`;
+      }
+
+      const movedToNewSlot = state.dragCourseDraft.hasMoved
+        && (state.dragCourseDraft.previewDate !== state.dragCourseDraft.sourceDate
+          || state.dragCourseDraft.previewStart !== state.dragCourseDraft.sourceStart
+          || state.dragCourseDraft.previewEnd !== state.dragCourseDraft.sourceEnd);
+
+      if (targetGuide) {
+        if (movedToNewSlot) {
+          targetGuide.style.display = 'block';
+          targetGuide.style.left = dragColumnLeft(state.dragCourseDraft.previewDay);
+          targetGuide.style.width = dragColumnWidth();
+          targetGuide.style.top = `${courseTopPx({ start: state.dragCourseDraft.previewStart })}px`;
+          targetGuide.style.height = `${durationPx(state.dragCourseDraft.previewStart, state.dragCourseDraft.previewEnd)}px`;
+        } else {
+          targetGuide.style.display = 'none';
+        }
+      }
+    }
+
+    function finishCourseCardPress() {
+      if (state.dragCourseDraft) {
+        finalizeCourseDrag();
+        return;
+      }
+      clearCourseCardPress();
+    }
+
+    function cancelCourseCardPress() {
+      state.dragCourseDraft = null;
+      clearCourseCardPress();
+      render();
+    }
+
+    function finalizeCourseDrag() {
+      if (!state.dragCourseDraft) {
+        clearCourseCardPress();
+        return;
+      }
+      const unchanged = state.dragCourseDraft.sourceDate === state.dragCourseDraft.previewDate
+        && state.dragCourseDraft.sourceStart === state.dragCourseDraft.previewStart
+        && state.dragCourseDraft.sourceEnd === state.dragCourseDraft.previewEnd;
+      const draft = state.dragCourseDraft;
+      state.dragCourseDraft = null;
+      state.dragJustEndedAt = Date.now();
+      clearCourseCardPress();
+      if (unchanged) {
+        render();
+        return;
+      }
+      state.pendingCourseMove = {
+        courseId: draft.courseId,
+        weekKey: weekKeyForDate(parseDateKey(draft.previewDate)),
+        date: draft.previewDate,
+        day: draft.previewDay,
+        start: draft.previewStart,
+        end: draft.previewEnd
+      };
+      render();
+    }
+
+    function applyPendingCourseMove(scope) {
+      const move = state.pendingCourseMove;
+      if (!move) return;
+      const payload = { day: move.day, start: move.start, end: move.end };
+      if (scope === 'all') {
+        const baseCourse = getCourseById(move.courseId);
+        if (baseCourse) {
+          Object.assign(baseCourse, payload);
+        }
+        Object.values(state.courseOverrides.weeks).forEach(weekMap => {
+          if (weekMap && weekMap[move.courseId]) {
+            delete weekMap[move.courseId];
+          }
+        });
+      } else {
+        state.courseOverrides.weeks[move.weekKey] = {
+          ...(state.courseOverrides.weeks[move.weekKey] || {}),
+          [move.courseId]: payload
+        };
+      }
+      state.pendingCourseMove = null;
+      showToast(scope === 'all' ? '已同步到所有周数' : '已仅调整当前周');
+    }
+
+    function handleEmptySlotClick(event) {
+      if (Date.now() - state.dragJustEndedAt < 250) {
+        return;
+      }
+      if (event.target.closest('.card-wrap') || event.target.closest('.event-card')) {
+        return;
+      }
+      const column = event.currentTarget;
+      const rect = column.getBoundingClientRect();
+      const y = event.clientY - rect.top;
+      const minutes = snapMinutes(Math.round((y / PX_PER_HOUR) * 60) + DAY_START_HOUR * 60);
+      const startTime = timeFromMinutes(minutes);
+      openQuickAdd(parseDateKey(column.dataset.date), startTime);
+    }
+
+    function startDragSwitch(event) {
+      state.dragStartY = event.clientY;
+      state.dragStartX = event.clientX;
+      state.dragTracking = true;
+      window.addEventListener('pointermove', handleDragSwitchMove);
+      window.addEventListener('pointerup', finishDragSwitch);
+      window.addEventListener('pointercancel', finishDragSwitch);
+    }
+
+    function handleDragSwitchMove(event) {
+      if (!state.dragTracking) return;
+      const dy = event.clientY - state.dragStartY;
+      const dx = event.clientX - state.dragStartX;
+      if (Math.abs(dy) < 85 || Math.abs(dy) < Math.abs(dx) * 1.2) return;
+      if (dy > 0 && state.view === 'week') {
+        state.dragTracking = false;
+        detachDragListeners();
+        switchView('month');
+        showToast('已切到月视图');
+      }
+      if (dy < 0 && state.view === 'month') {
+        state.dragTracking = false;
+        detachDragListeners();
+        switchView('week');
+        showToast('已回到周视图');
+      }
+    }
+
+    function finishDragSwitch() {
+      state.dragTracking = false;
+      detachDragListeners();
+    }
+
+    function detachDragListeners() {
+      window.removeEventListener('pointermove', handleDragSwitchMove);
+      window.removeEventListener('pointerup', finishDragSwitch);
+      window.removeEventListener('pointercancel', finishDragSwitch);
+    }
+
+    document.addEventListener('click', event => {
+      const popover = event.target.closest('[data-popover]');
+      const iconAction = event.target.closest('[data-action="toggle-import-menu"], [data-action="toggle-filter-menu"]');
+      if (!popover && !iconAction) {
+        if (state.showImportMenu || state.showFilterMenu) {
+          state.showImportMenu = false;
+          state.showFilterMenu = false;
+          render();
+        }
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

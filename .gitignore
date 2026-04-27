@@ -2,3 +2,11 @@ assets/previews/portfolio-*.png
 ~$*.docx
 tmp_*.xlsx
 tmp_*.pptx
+smart_learning_assistant_package/.deps/
+smart_learning_assistant_package/**/__pycache__/
+smart_learning_assistant_package/**/*.pyc
+smart_learning_assistant_package/run_*.log
+smart_learning_assistant_package/tmp_frontend_from_doc.files/
+smart_learning_assistant_package/tmp_frontend_from_doc.html
+smart_learning_assistant_package/tmp_frontend_from_doc.txt
+smart_learning_assistant_package/智能学习助手项目介绍.pptx

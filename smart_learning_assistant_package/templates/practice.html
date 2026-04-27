@@ -1,0 +1,696 @@
+{% extends "base.html" %}
+
+{% block title %}练习中心 - 智能学习助手{% endblock %}
+{% block page_title %}练习中心{% endblock %}
+{% block page_subtitle %}从小学到大学，按年级、学科和题型组合练习；题量会按你的选择真正生成出来。{% endblock %}
+
+{% block content %}
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+  <div class="xl:col-span-5">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line">
+      <div class="text-xs tracking-[0.18em] uppercase text-primary font-bold mb-4">Practice Builder</div>
+      <h2 class="text-3xl font-extrabold leading-tight">定制你的专属练习</h2>
+      <p class="text-muted mt-4 leading-7">现在可以直接选择单选、多选、判断、简答题型，系统会按年级和学科组合生成对应练习。</p>
+
+      <div class="grid md:grid-cols-3 gap-4 mt-8">
+        <div>
+          <label class="block text-sm font-semibold mb-2">年级</label>
+          <select id="grade" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">学科</label>
+          <select id="subject" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">题量</label>
+          <input id="count" type="number" min="1" max="20" value="4" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4">
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-3">题型</label>
+        <div id="question-type-picker" class="grid grid-cols-2 gap-3"></div>
+        <div class="mt-3 text-sm text-muted">默认四种题型都会参与生成，你也可以只勾选其中几种。</div>
+      </div>
+
+      <button id="generate-btn" class="mt-6 w-full study-gradient text-white rounded-2xl px-6 py-4 font-semibold shadow-panel">生成练习题目</button>
+    </div>
+  </div>
+
+  <div class="xl:col-span-7">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line min-h-[320px]">
+      <div class="flex items-center justify-between mb-5 gap-4">
+        <h3 class="text-xl font-bold">题目列表</h3>
+        <div id="practice-meta" class="text-sm text-muted">请选择年级、学科和题型后生成题目</div>
+      </div>
+      <div id="question-list" class="space-y-4">
+        <div class="text-muted">生成后的题目会显示在这里。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mt-6 grid grid-cols-1 xl:grid-cols-12 gap-6">
+  <div class="xl:col-span-7">
+    <div class="rounded-[30px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-4 gap-4">
+        <h3 class="text-xl font-bold">作答与反馈</h3>
+        <div id="grading-status" class="text-sm text-muted">选择一道题开始作答</div>
+      </div>
+      <div id="answer-area" class="space-y-4">
+        <div class="text-muted">点击上方题目卡片后，这里会显示作答区。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-5">
+    <div class="rounded-[30px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-4 gap-4">
+        <div>
+          <h3 class="text-xl font-bold">错题本</h3>
+        </div>
+        <button id="refresh-wrong" class="text-sm font-semibold text-primary">刷新</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs text-muted mb-1">待复习</div>
+          <div id="wrong-active-count" class="text-2xl font-extrabold text-ink">0</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs text-muted mb-1">已掌握</div>
+          <div id="wrong-mastered-count" class="text-2xl font-extrabold text-ink">0</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs text-muted mb-1">练对次数</div>
+          <div id="wrong-review-count" class="text-2xl font-extrabold text-ink">0</div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-5">
+        <button id="tab-active" class="rounded-2xl px-4 py-2 text-sm font-semibold bg-blue-50 text-primary">待复习</button>
+        <button id="tab-mastered" class="rounded-2xl px-4 py-2 text-sm font-semibold bg-surfaceSoft text-muted">已掌握</button>
+      </div>
+
+      <div id="wrong-top-subjects" class="flex flex-wrap gap-2 mb-4"></div>
+      <div id="wrong-list" class="space-y-3 text-sm text-muted">
+        <div>暂无错题。</div>
+      </div>
+      <div id="wrong-pagination" class="mt-4 flex items-center justify-between gap-3 text-sm text-muted"></div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let generatedQuestions = [];
+  let currentQuestion = null;
+  let catalog = null;
+  let currentWrongStatus = 'active';
+  let currentWrongQuestions = [];
+  let currentWrongPage = 1;
+  let selectedQuestionTypes = new Set();
+  let expandedWrongIds = new Set();
+  let currentConceptFilter = '';
+  let pendingPracticePreset = null;
+  let wrongRetryFeedback = {};
+
+  const WRONG_PAGE_SIZE = 4;
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function truncateText(value, maxLength = 34) {
+    const text = String(value ?? '');
+    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  }
+
+  function selectedTypesList() {
+    return Array.from(selectedQuestionTypes);
+  }
+
+  function parsePracticePreset() {
+    const params = new URLSearchParams(window.location.search);
+    const subject = params.get('subject') || '';
+    const grade = params.get('grade') || '';
+    const count = Number(params.get('count') || 0);
+    const concept = params.get('concept') || '';
+    const questionTypes = (params.get('question_types') || '')
+      .split(',')
+      .map(item => item.trim())
+      .filter(Boolean);
+
+    if (!subject && !grade && !concept && !questionTypes.length) {
+      return null;
+    }
+
+    return {
+      subject,
+      grade,
+      count: count > 0 ? count : 3,
+      concept,
+      questionTypes,
+    };
+  }
+
+  function renderQuestionTypePicker() {
+    const container = document.getElementById('question-type-picker');
+    const types = (catalog && catalog.question_types) || [];
+    if (!types.length) {
+      container.innerHTML = '<div class="text-sm text-muted">暂无可选题型。</div>';
+      return;
+    }
+
+    if (!selectedQuestionTypes.size) {
+      types.forEach(type => selectedQuestionTypes.add(type));
+    }
+
+    container.innerHTML = types.map(type => {
+      const active = selectedQuestionTypes.has(type);
+      return `
+        <label class="rounded-2xl border cursor-pointer transition ${active ? 'border-primary bg-blue-50 shadow-panel' : 'border-line bg-surfaceSoft'} p-4 flex items-center gap-3">
+          <input
+            type="checkbox"
+            class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+            ${active ? 'checked' : ''}
+            onchange="toggleQuestionType('${escapeHtml(type)}', this.checked)"
+          >
+          <span class="flex-1">
+            <span class="block font-semibold text-ink">${escapeHtml(type)}</span>
+            <span class="block text-xs text-muted mt-1">${type === '单选' ? '单个答案，适合快速检查' : type === '多选' ? '多个正确答案，支持漏选提示' : type === '判断' ? '对错判断，适合基础巩固' : '开放作答，支持宽松判分'}</span>
+          </span>
+        </label>
+      `;
+    }).join('');
+  }
+
+  function toggleQuestionType(type, checked) {
+    if (checked) {
+      selectedQuestionTypes.add(type);
+    } else if (selectedQuestionTypes.size > 1) {
+      selectedQuestionTypes.delete(type);
+    }
+
+    if (!selectedQuestionTypes.size && catalog && Array.isArray(catalog.question_types)) {
+      selectedQuestionTypes.add(type);
+    }
+
+    renderQuestionTypePicker();
+  }
+
+  function renderQuestions() {
+    const list = document.getElementById('question-list');
+    if (!generatedQuestions.length) {
+      list.innerHTML = '<div class="text-muted">暂无题目。</div>';
+      return;
+    }
+
+    list.innerHTML = generatedQuestions.map((question, index) => `
+      <button class="w-full text-left rounded-3xl border ${currentQuestion && currentQuestion.id === question.id ? 'border-primary bg-blue-50' : 'border-line bg-white'} p-5 hover:border-primary transition" onclick="selectQuestion(${index})">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2 text-xs tracking-[0.12em] uppercase text-muted mb-2">
+              <span>${escapeHtml(question.grade || '')}</span>
+              <span>第 ${index + 1} 题</span>
+              <span>${escapeHtml(question.type || '题目')}</span>
+              ${question.practice_round > 1 ? '<span class="rounded-full bg-amber-100 text-amber-700 px-2 py-1 normal-case tracking-normal">同主题加练</span>' : ''}
+            </div>
+            <div class="font-semibold leading-7">${escapeHtml(question.question)}</div>
+          </div>
+          <span class="material-symbols-outlined text-muted shrink-0">chevron_right</span>
+        </div>
+      </button>
+    `).join('');
+  }
+
+  function renderAnswerInput(question) {
+    const type = question.type || '简答';
+    const options = question.options || [];
+
+    if (type === '单选' || type === '判断') {
+      return `
+        <div class="space-y-2">
+          ${options.map((option, idx) => `
+            <label class="flex items-start gap-3 rounded-2xl bg-surfaceSoft p-4">
+              <input type="radio" name="option-answer" value="${escapeHtml(option)}" class="mt-1">
+              <span>${String.fromCharCode(65 + idx)}. ${escapeHtml(option)}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    if (type === '多选') {
+      return `
+        <div class="space-y-2">
+          ${options.map((option, idx) => `
+            <label class="flex items-start gap-3 rounded-2xl bg-surfaceSoft p-4">
+              <input type="checkbox" name="option-answer-multi" value="${escapeHtml(option)}" class="mt-1">
+              <span>${String.fromCharCode(65 + idx)}. ${escapeHtml(option)}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    return `
+      <textarea id="user-answer" class="w-full rounded-2xl bg-surfaceSoft border-0 p-5 min-h-[160px]" placeholder="请输入你的答案，意思接近、关键点对上也会被识别。"></textarea>
+    `;
+  }
+
+  function selectQuestion(index) {
+    currentQuestion = generatedQuestions[index];
+    renderQuestions();
+
+    document.getElementById('answer-area').innerHTML = `
+      <div class="rounded-3xl bg-surfaceSoft p-5">
+        <div class="text-xs tracking-[0.14em] uppercase text-muted mb-2">${escapeHtml(currentQuestion.subject || '')} · ${escapeHtml(currentQuestion.grade || '')} · ${escapeHtml(currentQuestion.type || '题目')}</div>
+        <div class="font-semibold leading-7">${escapeHtml(currentQuestion.question)}</div>
+      </div>
+      ${renderAnswerInput(currentQuestion)}
+      <button id="submit-answer" class="study-gradient text-white rounded-2xl px-5 py-3 font-semibold">提交答案</button>
+      <div id="grade-result"></div>
+    `;
+    document.getElementById('grading-status').textContent = '已选择题目，可直接作答';
+    document.getElementById('submit-answer').addEventListener('click', gradeCurrentQuestion);
+  }
+
+  function updateSubjectOptions() {
+    const grade = document.getElementById('grade').value;
+    const subjectSelect = document.getElementById('subject');
+    const subjects = (catalog && catalog.subjects_by_grade && catalog.subjects_by_grade[grade]) || [];
+    subjectSelect.innerHTML = subjects.map(subject => `<option value="${escapeHtml(subject)}">${escapeHtml(subject)}</option>`).join('');
+  }
+
+  function clearConceptFilterOnManualChange() {
+    currentConceptFilter = '';
+  }
+
+  async function loadPracticeMetadata() {
+    const response = await fetch('/api/practice/metadata');
+    const data = await response.json();
+    if (data.error) {
+      document.getElementById('practice-meta').textContent = data.error;
+      return;
+    }
+
+    catalog = data;
+    selectedQuestionTypes = new Set(data.question_types || []);
+    const gradeSelect = document.getElementById('grade');
+    const subjectSelect = document.getElementById('subject');
+    gradeSelect.innerHTML = (data.grades || []).map(grade => `<option value="${escapeHtml(grade)}">${escapeHtml(grade)}</option>`).join('');
+    updateSubjectOptions();
+    renderQuestionTypePicker();
+    gradeSelect.addEventListener('change', () => {
+      clearConceptFilterOnManualChange();
+      updateSubjectOptions();
+    });
+    subjectSelect.addEventListener('change', clearConceptFilterOnManualChange);
+    applyPracticePreset();
+  }
+
+  function applyPracticePreset() {
+    if (!pendingPracticePreset || !catalog) return;
+
+    const gradeSelect = document.getElementById('grade');
+    const subjectSelect = document.getElementById('subject');
+    const countInput = document.getElementById('count');
+    const { grade, subject, count, concept, questionTypes } = pendingPracticePreset;
+
+    if (grade && (catalog.grades || []).includes(grade)) {
+      gradeSelect.value = grade;
+      updateSubjectOptions();
+    }
+
+    const availableSubjects = (catalog.subjects_by_grade && catalog.subjects_by_grade[gradeSelect.value]) || [];
+    if (subject && availableSubjects.includes(subject)) {
+      subjectSelect.value = subject;
+    }
+
+    if (count) {
+      countInput.value = count;
+    }
+
+    if (questionTypes.length) {
+      selectedQuestionTypes = new Set(questionTypes);
+      renderQuestionTypePicker();
+    }
+
+    currentConceptFilter = concept;
+    pendingPracticePreset = null;
+    generateQuestionsList();
+  }
+
+  async function generateQuestionsList() {
+    const subject = document.getElementById('subject').value;
+    const grade = document.getElementById('grade').value;
+    const count = Math.max(1, Number(document.getElementById('count').value || 4));
+    const questionTypes = selectedTypesList();
+
+    if (!questionTypes.length) {
+      alert('请至少选择一种题型');
+      return;
+    }
+
+    document.getElementById('practice-meta').textContent = '正在生成题目...';
+    const response = await fetch('/api/practice/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, grade, count, question_types: questionTypes, concept: currentConceptFilter })
+    });
+    const data = await response.json();
+    if (data.error) {
+      document.getElementById('practice-meta').textContent = data.error;
+      return;
+    }
+
+    generatedQuestions = data.questions || [];
+    currentQuestion = null;
+
+    const repeatedCount = generatedQuestions.filter(question => Number(question.practice_round || 1) > 1).length;
+    const actualTypes = (data.meta && data.meta.actual_question_types && data.meta.actual_question_types.length)
+      ? data.meta.actual_question_types
+      : questionTypes;
+    const typeLabel = actualTypes.join(' / ');
+    const conceptLabel = currentConceptFilter ? ` · 知识点：${currentConceptFilter}` : '';
+    document.getElementById('practice-meta').textContent = `${grade} · ${subject}${conceptLabel} · ${typeLabel} · 共 ${generatedQuestions.length} 题${repeatedCount ? `（含 ${repeatedCount} 题同主题加练）` : ''}${data.meta && data.meta.used_type_fallback ? ' · 已自动补充当前学科可用题型' : ''}`;
+    renderQuestions();
+    document.getElementById('answer-area').innerHTML = '<div class="text-muted">请先选择一道题作答。</div>';
+  }
+
+  function collectUserAnswer() {
+    if (!currentQuestion) return '';
+
+    if (currentQuestion.type === '多选') {
+      return Array.from(document.querySelectorAll('input[name="option-answer-multi"]:checked')).map(item => item.value);
+    }
+
+    if (currentQuestion.type === '单选' || currentQuestion.type === '判断') {
+      const checkedOption = document.querySelector('input[name="option-answer"]:checked');
+      return checkedOption ? checkedOption.value : '';
+    }
+
+    const answerInput = document.getElementById('user-answer');
+    return answerInput ? answerInput.value.trim() : '';
+  }
+
+  async function gradeCurrentQuestion() {
+    if (!currentQuestion) return;
+
+    const userAnswer = collectUserAnswer();
+    if ((Array.isArray(userAnswer) && !userAnswer.length) || (!Array.isArray(userAnswer) && !userAnswer)) {
+      alert('请先输入答案');
+      return;
+    }
+
+    document.getElementById('grading-status').textContent = '正在智能批改...';
+    const response = await fetch('/api/practice/grade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: currentQuestion, user_answer: userAnswer })
+    });
+    const data = await response.json();
+    if (data.error) {
+      document.getElementById('grade-result').innerHTML = `<div class="rounded-2xl bg-red-50 text-red-700 p-4">${escapeHtml(data.error)}</div>`;
+      return;
+    }
+
+    document.getElementById('grading-status').textContent = '批改完成';
+    document.getElementById('grade-result').innerHTML = `
+      <div class="rounded-3xl ${data.is_correct ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'} border p-5">
+        <div class="font-bold ${data.is_correct ? 'text-emerald-700' : 'text-amber-700'}">${data.is_correct ? '回答正确，核心内容已经对上了' : '这题先放进错题本，后面可以继续回练'}</div>
+        <div class="mt-2 text-sm text-ink">得分：${escapeHtml(data.score)}</div>
+        <div class="mt-2 text-sm text-muted">参考答案：${escapeHtml(data.correct_answer)}</div>
+        ${data.explanation ? `<div class="mt-2 text-sm leading-7 text-ink">解析：${escapeHtml(data.explanation)}</div>` : ''}
+        ${data.improvement ? `<div class="mt-2 text-sm leading-7 text-ink">建议：${escapeHtml(data.improvement)}</div>` : ''}
+      </div>
+    `;
+
+    localStorage.setItem('recentPractice', JSON.stringify({
+      subject: document.getElementById('subject').value,
+      grade: document.getElementById('grade').value,
+      difficulty: document.getElementById('grade').value,
+      total: generatedQuestions.length,
+      score: data.score
+    }));
+
+    await loadWrongQuestions(currentWrongStatus, false);
+  }
+
+  function renderWrongSummary(summary) {
+    document.getElementById('wrong-active-count').textContent = summary.active || 0;
+    document.getElementById('wrong-mastered-count').textContent = summary.mastered || 0;
+    document.getElementById('wrong-review-count').textContent = summary.total_reviews || 0;
+
+    const topSubjects = summary.top_subjects || [];
+    document.getElementById('wrong-top-subjects').innerHTML = topSubjects.length
+      ? topSubjects.map(item => `<span class="px-3 py-1 rounded-full bg-surfaceSoft text-xs text-ink">${escapeHtml(item.subject)} · ${escapeHtml(item.count)}</span>`).join('')
+      : '<span class="text-sm text-muted">当前还没有明显的薄弱学科。</span>';
+  }
+
+  function renderWrongRetryInput(item) {
+    const inputName = `wrong-retry-${item.id}`;
+    const options = item.options || [];
+
+    if ((item.type === '单选' || item.type === '判断') && options.length) {
+      return `
+        <div class="space-y-2">
+          ${options.map((option, idx) => `
+            <label class="flex items-start gap-3 rounded-2xl bg-white p-3">
+              <input type="radio" name="${inputName}" value="${escapeHtml(option)}" class="mt-1">
+              <span>${String.fromCharCode(65 + idx)}. ${escapeHtml(option)}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    if (item.type === '多选' && options.length) {
+      return `
+        <div class="space-y-2">
+          ${options.map((option, idx) => `
+            <label class="flex items-start gap-3 rounded-2xl bg-white p-3">
+              <input type="checkbox" name="${inputName}" value="${escapeHtml(option)}" class="mt-1">
+              <span>${String.fromCharCode(65 + idx)}. ${escapeHtml(option)}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    return `<textarea id="wrong-retry-input-${item.id}" class="w-full rounded-2xl bg-white border-0 p-4 min-h-[120px]" placeholder="重新作答，答对后会自动记为已掌握。"></textarea>`;
+  }
+
+  function collectWrongRetryAnswer(item) {
+    const inputName = `wrong-retry-${item.id}`;
+
+    if (item.type === '多选') {
+      return Array.from(document.querySelectorAll(`input[name="${inputName}"]:checked`)).map(node => node.value);
+    }
+
+    if (item.type === '单选' || item.type === '判断') {
+      const checked = document.querySelector(`input[name="${inputName}"]:checked`);
+      return checked ? checked.value : '';
+    }
+
+    const input = document.getElementById(`wrong-retry-input-${item.id}`);
+    return input ? input.value.trim() : '';
+  }
+
+  function renderWrongPagination(totalItems) {
+    const totalPages = Math.max(1, Math.ceil(totalItems / WRONG_PAGE_SIZE));
+    currentWrongPage = Math.min(currentWrongPage, totalPages);
+    const container = document.getElementById('wrong-pagination');
+
+    if (!totalItems) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = `
+      <div>第 ${currentWrongPage} / ${totalPages} 页</div>
+      <div class="flex items-center gap-2">
+        <button type="button" class="rounded-xl bg-surfaceSoft px-3 py-2 ${currentWrongPage === 1 ? 'text-slate-400' : 'text-ink'}" onclick="changeWrongPage(-1)" ${currentWrongPage === 1 ? 'disabled' : ''}>上一页</button>
+        <button type="button" class="rounded-xl bg-surfaceSoft px-3 py-2 ${currentWrongPage === totalPages ? 'text-slate-400' : 'text-ink'}" onclick="changeWrongPage(1)" ${currentWrongPage === totalPages ? 'disabled' : ''}>下一页</button>
+      </div>
+    `;
+  }
+
+  function renderWrongList(wrongQuestions) {
+    currentWrongQuestions = wrongQuestions;
+    const wrongList = document.getElementById('wrong-list');
+    if (!wrongQuestions.length) {
+      wrongList.innerHTML = `<div>${currentWrongStatus === 'active' ? '暂无待复习错题。' : '暂无已掌握记录。'}</div>`;
+      renderWrongPagination(0);
+      return;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(wrongQuestions.length / WRONG_PAGE_SIZE));
+    currentWrongPage = Math.min(currentWrongPage, totalPages);
+    const startIndex = (currentWrongPage - 1) * WRONG_PAGE_SIZE;
+    const pageItems = wrongQuestions.slice(startIndex, startIndex + WRONG_PAGE_SIZE);
+
+    wrongList.innerHTML = pageItems.map(item => {
+      const expanded = expandedWrongIds.has(item.id);
+      const retryFeedback = wrongRetryFeedback[item.id];
+      const summaryBadge = item.notebook_status === 'mastered'
+        ? 'bg-emerald-100 text-emerald-700'
+        : 'bg-amber-100 text-amber-700';
+
+      return `
+        <div class="rounded-2xl border border-line overflow-hidden">
+          <button type="button" class="w-full text-left bg-white px-4 py-4" onclick="toggleWrongDetail(${item.id})">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-medium text-ink">${escapeHtml(truncateText(item.question, 36))}</div>
+                <div class="text-xs text-muted mt-2">${escapeHtml(item.subject)} · ${escapeHtml(item.grade || item.difficulty || '未知年级')} · ${escapeHtml(item.question_type || '题目')} · 练对 ${escapeHtml(item.review_count || 0)} 次</div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-xs px-3 py-1 rounded-full ${summaryBadge}">${item.notebook_status === 'mastered' ? '已掌握' : '待复习'}</span>
+                <span class="material-symbols-outlined text-muted">${expanded ? 'expand_less' : 'expand_more'}</span>
+              </div>
+            </div>
+          </button>
+          ${expanded ? `
+            <div class="bg-surfaceSoft px-4 py-4 border-t border-line">
+              <div class="text-xs text-muted">${escapeHtml(item.timestamp)}</div>
+              <div class="mt-3 text-sm text-ink"><span class="font-semibold">题目：</span>${escapeHtml(item.question)}</div>
+              ${item.notebook_status === 'active' ? `
+                <div class="mt-4 rounded-2xl border border-dashed border-line p-4">
+                  <div class="text-sm font-semibold text-ink mb-3">重新作答</div>
+                  ${renderWrongRetryInput(item)}
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button class="rounded-xl bg-primary text-white px-3 py-2 text-xs font-semibold" onclick="submitWrongRetry(${item.id})">提交这次重练</button>
+                    <button class="rounded-xl bg-red-50 text-red-700 px-3 py-2 text-xs font-semibold" onclick="updateWrongItem(${item.id}, 'delete')">删除</button>
+                  </div>
+                  <div class="mt-2 text-xs text-muted">答对后会自动移到“已掌握”，答错则继续保留在错题本。</div>
+                </div>
+                ${retryFeedback ? `
+                  <div class="mt-4 rounded-2xl ${retryFeedback.is_correct ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'} border p-4">
+                    <div class="font-semibold ${retryFeedback.is_correct ? 'text-emerald-700' : 'text-amber-700'}">${retryFeedback.is_correct ? '这次重练答对了' : '这次还没答对'}</div>
+                    <div class="mt-2 text-sm text-ink"><span class="font-semibold">你的答案：</span>${escapeHtml(retryFeedback.user_answer || '未作答')}</div>
+                    <div class="mt-2 text-sm text-muted"><span class="font-semibold">参考答案：</span>${escapeHtml(retryFeedback.correct_answer || '')}</div>
+                    ${retryFeedback.explanation ? `<div class="mt-2 text-sm text-ink"><span class="font-semibold">解析：</span>${escapeHtml(retryFeedback.explanation)}</div>` : ''}
+                    ${retryFeedback.improvement ? `<div class="mt-2 text-sm text-ink"><span class="font-semibold">建议：</span>${escapeHtml(retryFeedback.improvement)}</div>` : ''}
+                  </div>
+                ` : ''}
+              ` : `
+                <div class="mt-2 text-sm text-ink"><span class="font-semibold">你的答案：</span>${escapeHtml(item.user_answer || '未作答')}</div>
+                <div class="mt-2 text-sm text-muted"><span class="font-semibold">参考答案：</span>${escapeHtml(item.correct_answer || '')}</div>
+                ${item.explanation ? `<div class="mt-2 text-sm text-ink"><span class="font-semibold">解析：</span>${escapeHtml(item.explanation)}</div>` : ''}
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button class="rounded-xl bg-slate-700 text-white px-3 py-2 text-xs font-semibold" onclick="updateWrongItem(${item.id}, 'reactivate')">重新放回错题本</button>
+                  <button class="rounded-xl bg-red-50 text-red-700 px-3 py-2 text-xs font-semibold" onclick="updateWrongItem(${item.id}, 'delete')">删除</button>
+                </div>
+              `}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+
+    renderWrongPagination(wrongQuestions.length);
+  }
+
+  function toggleWrongDetail(questionId) {
+    if (expandedWrongIds.has(questionId)) {
+      expandedWrongIds.delete(questionId);
+    } else {
+      expandedWrongIds.add(questionId);
+    }
+    renderWrongList(currentWrongQuestions);
+  }
+
+  function changeWrongPage(direction) {
+    const totalPages = Math.max(1, Math.ceil(currentWrongQuestions.length / WRONG_PAGE_SIZE));
+    currentWrongPage = Math.min(totalPages, Math.max(1, currentWrongPage + direction));
+    renderWrongList(currentWrongQuestions);
+  }
+
+  async function loadWrongQuestions(status = currentWrongStatus, resetPage = true) {
+    currentWrongStatus = status;
+    if (resetPage) {
+      currentWrongPage = 1;
+      expandedWrongIds = new Set();
+      wrongRetryFeedback = {};
+    }
+
+    document.getElementById('tab-active').className = `rounded-2xl px-4 py-2 text-sm font-semibold ${status === 'active' ? 'bg-blue-50 text-primary' : 'bg-surfaceSoft text-muted'}`;
+    document.getElementById('tab-mastered').className = `rounded-2xl px-4 py-2 text-sm font-semibold ${status === 'mastered' ? 'bg-blue-50 text-primary' : 'bg-surfaceSoft text-muted'}`;
+
+    const response = await fetch(`/api/practice/wrong?status=${encodeURIComponent(status)}`);
+    const data = await response.json();
+    if (data.error) {
+      document.getElementById('wrong-list').innerHTML = `<div class="text-red-700">${escapeHtml(data.error)}</div>`;
+      return;
+    }
+
+    renderWrongSummary(data.summary || {});
+    renderWrongList(data.wrong_questions || []);
+  }
+
+  async function updateWrongItem(questionId, action) {
+    const response = await fetch(`/api/practice/wrong/${questionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    });
+    const data = await response.json();
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    await loadWrongQuestions(currentWrongStatus, false);
+  }
+
+  async function submitWrongRetry(questionId) {
+    const item = currentWrongQuestions.find(entry => entry.id === questionId);
+    if (!item) return;
+
+    const userAnswer = collectWrongRetryAnswer(item);
+    if ((Array.isArray(userAnswer) && !userAnswer.length) || (!Array.isArray(userAnswer) && !userAnswer)) {
+      alert('请先完成这道错题的重新作答');
+      return;
+    }
+
+    const response = await fetch(`/api/practice/wrong/${questionId}/retry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_answer: userAnswer })
+    });
+    const data = await response.json();
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
+    const result = data.result || {};
+    wrongRetryFeedback[questionId] = result;
+    alert(result.is_correct ? '这次重练答对了，已经自动标记为已掌握。' : '这次还没答对，已经显示参考答案和解析。');
+    await loadWrongQuestions(currentWrongStatus, false);
+  }
+
+  document.getElementById('generate-btn').addEventListener('click', generateQuestionsList);
+  document.getElementById('refresh-wrong').addEventListener('click', () => loadWrongQuestions(currentWrongStatus, true));
+  document.getElementById('tab-active').addEventListener('click', () => loadWrongQuestions('active', true));
+  document.getElementById('tab-mastered').addEventListener('click', () => loadWrongQuestions('mastered', true));
+
+  window.toggleQuestionType = toggleQuestionType;
+  window.selectQuestion = selectQuestion;
+  window.toggleWrongDetail = toggleWrongDetail;
+  window.changeWrongPage = changeWrongPage;
+  window.updateWrongItem = updateWrongItem;
+  window.submitWrongRetry = submitWrongRetry;
+
+  pendingPracticePreset = parsePracticePreset();
+  loadPracticeMetadata();
+  loadWrongQuestions();
+</script>
+{% endblock %}

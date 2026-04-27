@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 智能学习助手{% endblock %}
+{% block page_title %}首页工作台{% endblock %}
+{% block page_subtitle %}今天该学什么，一眼就能看到。{% endblock %}
+
+{% block content %}
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+  <div class="xl:col-span-8 space-y-6">
+    <div class="rounded-[28px] study-gradient text-white p-8 shadow-panel">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+          <div class="text-xs tracking-[0.18em] uppercase text-blue-100 mb-3">Dashboard</div>
+          <h2 class="text-3xl md:text-4xl font-extrabold leading-tight">把今天的学习任务<br>一口气推进下去</h2>
+          <p class="mt-4 text-blue-50 max-w-2xl leading-7">你可以从提问开始，也可以直接进入练习。完成后，再把内容沉淀到学习计划里。</p>
+        </div>
+        <div class="flex gap-3">
+          <a href="/qa" class="rounded-2xl bg-white text-primary px-5 py-3 font-semibold">开始提问</a>
+          <a href="/practice" class="rounded-2xl bg-white/15 border border-white/20 px-5 py-3 font-semibold">去做练习</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-[28px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-bold">今日学习任务</h3>
+        <span id="task-count" class="text-sm text-muted">加载中...</span>
+      </div>
+      <div id="today-tasks" class="space-y-3">
+        <div class="text-muted">正在加载任务...</div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-[28px] bg-surface p-6 shadow-panel border border-line">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold">最近提问</h3>
+          <a href="/qa" class="text-sm font-semibold text-primary">继续提问</a>
+        </div>
+        <div id="recent-question" class="text-muted leading-7">你最近的提问会显示在这里。</div>
+      </div>
+      <div class="rounded-[28px] bg-surface p-6 shadow-panel border border-line">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold">最近练习</h3>
+          <a href="/practice" class="text-sm font-semibold text-primary">再次练习</a>
+        </div>
+        <div id="recent-practice" class="text-muted leading-7">你最近的练习结果会显示在这里。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-4 space-y-6">
+    <div class="rounded-[28px] bg-surface p-6 shadow-panel border border-line">
+      <h3 class="text-lg font-bold mb-5">学习进度</h3>
+      <div class="flex items-end gap-3 mb-4">
+        <div id="completion-rate" class="text-4xl font-extrabold text-primary">0%</div>
+        <div class="text-sm text-muted pb-1">当前计划完成率</div>
+      </div>
+      <div class="w-full h-3 rounded-full bg-surfaceSoft overflow-hidden">
+        <div id="completion-bar" class="h-full study-gradient" style="width: 0%"></div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mt-5">
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs text-muted mb-1">总任务</div>
+          <div id="total-tasks" class="text-xl font-bold">0</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs text-muted mb-1">已完成</div>
+          <div id="completed-tasks" class="text-xl font-bold">0</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs text-muted mb-1">错题数</div>
+          <div id="wrong-count" class="text-xl font-bold">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-[28px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold">最近错题</h3>
+        <a href="/practice" class="text-sm font-semibold text-primary">去复习</a>
+      </div>
+      <div id="recent-wrong" class="space-y-3 text-sm text-muted">
+        <div>暂无错题记录。</div>
+      </div>
+    </div>
+
+    <div class="rounded-[28px] p-6 study-gradient text-white shadow-panel">
+      <div class="text-xs tracking-[0.16em] uppercase text-blue-100 mb-3">推荐下一步</div>
+      <h3 class="text-2xl font-bold leading-snug">先提一个问题，再去做 3 道相关练习题。</h3>
+      <a href="/qa" class="inline-flex mt-5 rounded-2xl bg-white text-primary px-4 py-3 font-semibold">立即开始</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadDashboard() {
+    const response = await fetch('/api/dashboard');
+    const data = await response.json();
+    if (data.error) {
+      document.getElementById('today-tasks').innerHTML = `<div class="text-red-600">${data.error}</div>`;
+      return;
+    }
+
+    const stats = data.stats || {};
+    const tasks = data.today_tasks || [];
+    const wrongQuestions = data.recent_wrong_questions || [];
+
+    document.getElementById('task-count').textContent = `${tasks.length} 项任务`;
+    document.getElementById('completion-rate').textContent = `${stats.completion_rate || 0}%`;
+    document.getElementById('completion-bar').style.width = `${stats.completion_rate || 0}%`;
+    document.getElementById('total-tasks').textContent = stats.total_tasks || 0;
+    document.getElementById('completed-tasks').textContent = stats.completed_tasks || 0;
+    document.getElementById('wrong-count').textContent = stats.wrong_questions_count || 0;
+
+    const tasksEl = document.getElementById('today-tasks');
+    if (!tasks.length) {
+      tasksEl.innerHTML = '<div class="text-muted">还没有学习计划，先去创建一个吧。</div>';
+    } else {
+      tasksEl.innerHTML = tasks.map(task => `
+        <div class="rounded-2xl border border-line p-4 flex items-center justify-between gap-4">
+          <div>
+            <div class="font-semibold">${task.task_name}</div>
+            <div class="text-sm text-muted">${task.subject} · ${task.scheduled_date} · ${Math.round((task.duration || 0) / 60)} 小时</div>
+          </div>
+          <div class="text-xs px-3 py-1 rounded-full ${task.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : task.status === 'in_progress' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}">${task.status}</div>
+        </div>
+      `).join('');
+    }
+
+    const wrongEl = document.getElementById('recent-wrong');
+    wrongEl.innerHTML = wrongQuestions.length ? wrongQuestions.map(item => `
+      <div class="rounded-2xl bg-surfaceSoft p-4">
+        <div class="font-medium text-ink">${item.question}</div>
+        <div class="text-xs text-muted mt-1">${item.subject} · ${item.timestamp}</div>
+      </div>
+    `).join('') : '<div>暂无错题记录。</div>';
+
+    const recentQuestion = JSON.parse(localStorage.getItem('recentQuestion') || 'null');
+    if (recentQuestion) {
+      document.getElementById('recent-question').innerHTML = `
+        <div class="font-medium text-ink">${recentQuestion.question}</div>
+        <div class="text-sm text-muted mt-2 line-clamp-3 whitespace-pre-wrap">${recentQuestion.answer}</div>
+      `;
+    }
+
+    const recentPractice = JSON.parse(localStorage.getItem('recentPractice') || 'null');
+    if (recentPractice) {
+      document.getElementById('recent-practice').innerHTML = `
+        <div class="font-medium text-ink">${recentPractice.subject} · ${recentPractice.difficulty}</div>
+        <div class="text-sm text-muted mt-2">最近一次练习共 ${recentPractice.total} 题，最后一题得分 ${recentPractice.score}。</div>
+      `;
+    }
+  }
+
+  loadDashboard();
+</script>
+{% endblock %}

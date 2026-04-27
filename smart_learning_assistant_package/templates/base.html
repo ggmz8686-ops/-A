@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}智能学习助手{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "#f7f9fb",
+            surface: "#ffffff",
+            surfaceSoft: "#eef2f7",
+            line: "#d9e0ea",
+            ink: "#18212b",
+            muted: "#5e6b7a",
+            primary: "#1d4ed8",
+            secondary: "#0f766e",
+            accent: "#38bdf8",
+          },
+          boxShadow: {
+            panel: "0 12px 30px rgba(15, 23, 42, 0.07)",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .study-gradient {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #38bdf8 100%);
+    }
+    .study-gradient-soft {
+      background: linear-gradient(135deg, rgba(29,78,216,.12) 0%, rgba(56,189,248,.12) 100%);
+    }
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="bg-background text-ink">
+  <div class="min-h-screen flex">
+    <aside class="hidden md:flex w-64 shrink-0 flex-col border-r border-line bg-white/90 backdrop-blur">
+      <div class="px-6 py-7 border-b border-line">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl study-gradient text-white flex items-center justify-center shadow-panel">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <div>
+            <div class="text-lg font-extrabold text-primary">智能学习助手</div>
+            <div class="text-[11px] tracking-[0.18em] uppercase text-muted">Web Edition</div>
+          </div>
+        </a>
+      </div>
+      <nav class="px-4 py-5 space-y-2">
+        <a href="/" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition {% if active == 'dashboard' %}bg-blue-50 text-primary border-r-4 border-primary{% else %}text-muted hover:bg-surfaceSoft{% endif %}">
+          <span class="material-symbols-outlined">home</span>
+          <span>首页</span>
+        </a>
+        <a href="/qa" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition {% if active == 'qa' %}bg-blue-50 text-primary border-r-4 border-primary{% else %}text-muted hover:bg-surfaceSoft{% endif %}">
+          <span class="material-symbols-outlined">chat_bubble</span>
+          <span>知识问答</span>
+        </a>
+        <a href="/practice" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition {% if active == 'practice' %}bg-blue-50 text-primary border-r-4 border-primary{% else %}text-muted hover:bg-surfaceSoft{% endif %}">
+          <span class="material-symbols-outlined">edit_note</span>
+          <span>练习中心</span>
+        </a>
+        <a href="/plan" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition {% if active == 'plan' %}bg-blue-50 text-primary border-r-4 border-primary{% else %}text-muted hover:bg-surfaceSoft{% endif %}">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <span>学习计划</span>
+        </a>
+      </nav>
+    </aside>
+    <div class="flex-1 min-w-0">
+      <header class="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-line">
+        <div class="px-5 md:px-8 py-4 flex items-center gap-4">
+          <div>
+            <div class="text-xl md:text-2xl font-extrabold">{% block page_title %}{% endblock %}</div>
+            <div class="text-sm text-muted">{% block page_subtitle %}{% endblock %}</div>
+          </div>
+        </div>
+      </header>
+      <main class="px-5 md:px-8 py-8">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}知识问答 - 智能学习助手{% endblock %}
+{% block page_title %}知识问答{% endblock %}
+{% block page_subtitle %}输入一个知识点、公式、概念或原理，系统会给出解释、步骤和易错点。{% endblock %}
+
+{% block content %}
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+  <div class="xl:col-span-7">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line">
+      <div class="text-xs tracking-[0.18em] uppercase text-secondary font-bold mb-4">AI Tutor Interface</div>
+      <label class="block text-sm font-semibold mb-3" for="question">你的问题</label>
+      <textarea id="question" class="w-full rounded-[24px] border-0 bg-surfaceSoft p-6 text-lg leading-8 focus:ring-2 focus:ring-primary/20 min-h-[180px]" placeholder="例如：为什么货币政策会有时滞效应？"></textarea>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button id="ask-btn" class="study-gradient text-white rounded-2xl px-6 py-3 font-semibold shadow-panel">开始提问</button>
+        <button data-example="什么是质数？" class="example-btn rounded-2xl px-4 py-3 bg-surfaceSoft text-sm font-medium">质数是什么？</button>
+        <button data-example="如何学习 Python？" class="example-btn rounded-2xl px-4 py-3 bg-surfaceSoft text-sm font-medium">如何学习 Python？</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-5">
+    <div class="rounded-[30px] p-6 study-gradient text-white shadow-panel">
+      <div class="text-xs tracking-[0.16em] uppercase text-blue-100 mb-3">学习串联</div>
+      <h3 class="text-2xl font-bold leading-snug">提问之后，建议直接做 3 道相关练习题。</h3>
+      <p class="mt-4 text-blue-50 leading-7">问答页适合理解概念，练习页适合巩固记忆。把它们串起来，学习效果会更稳定。</p>
+      <a id="study-bridge-link" href="/practice" class="inline-flex mt-5 rounded-2xl bg-white text-primary px-4 py-3 font-semibold">去练习</a>
+    </div>
+  </div>
+</section>
+
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+  <div class="xl:col-span-8">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line min-h-[360px]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-bold">AI 分析结果</h3>
+        <button id="save-note-btn" class="text-sm font-semibold text-primary hidden">保存到最近记录</button>
+      </div>
+      <div id="answer-empty" class="text-muted leading-8">提交问题后，这里会显示解释、步骤和易错点。</div>
+      <div id="answer-panel" class="hidden space-y-5">
+        <div class="rounded-2xl bg-surfaceSoft p-5">
+          <div class="text-sm font-bold text-primary mb-2">回答</div>
+          <div id="answer" class="whitespace-pre-wrap leading-8 text-[15px]"></div>
+        </div>
+        <div id="practice-recommendation" class="hidden rounded-2xl border border-line bg-white p-5">
+          <div class="text-sm font-bold text-primary mb-2">推荐练习</div>
+          <div id="practice-recommendation-title" class="font-semibold text-ink"></div>
+          <div id="practice-recommendation-meta" class="text-sm text-muted mt-2 leading-7"></div>
+          <a id="practice-recommendation-link" href="/practice" class="inline-flex mt-4 rounded-2xl study-gradient text-white px-4 py-3 font-semibold">去练习</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-4">
+    <div class="rounded-[30px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold">最近提问</h3>
+        <button id="clear-history" class="text-sm text-muted">清空</button>
+      </div>
+      <div id="question-history" class="space-y-3 text-sm text-muted">
+        <div>还没有提问记录。</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const questionInput = document.getElementById('question');
+  const answerPanel = document.getElementById('answer-panel');
+  const answerEmpty = document.getElementById('answer-empty');
+  const answerEl = document.getElementById('answer');
+  const saveNoteBtn = document.getElementById('save-note-btn');
+  const studyBridgeLinkEl = document.getElementById('study-bridge-link');
+  const practiceRecommendationEl = document.getElementById('practice-recommendation');
+  const practiceRecommendationTitleEl = document.getElementById('practice-recommendation-title');
+  const practiceRecommendationMetaEl = document.getElementById('practice-recommendation-meta');
+  const practiceRecommendationLinkEl = document.getElementById('practice-recommendation-link');
+  let latestQuestionRecord = null;
+  let historyRecords = [];
+
+  function renderHistory() {
+    historyRecords = JSON.parse(localStorage.getItem('qaHistory') || '[]');
+    const historyEl = document.getElementById('question-history');
+    if (!historyRecords.length) {
+      historyEl.innerHTML = '<div>还没有提问记录。</div>';
+      return;
+    }
+    historyEl.innerHTML = historyRecords.map((item, index) => `
+      <button class="w-full text-left rounded-2xl bg-surfaceSoft p-4 hover:bg-blue-50 transition" onclick="restoreQuestion(${index})">
+        <div class="font-medium text-ink">${item.question}</div>
+        <div class="text-xs text-muted mt-1">${item.time}</div>
+      </button>
+    `).join('');
+  }
+
+  function restoreQuestion(index) {
+    const item = historyRecords[index];
+    if (!item) return;
+    questionInput.value = item.question;
+    answerPanel.classList.remove('hidden');
+    answerEmpty.classList.add('hidden');
+    answerEl.textContent = item.answer;
+    renderPracticeRecommendation(item.practice_recommendation || null);
+  }
+
+  function buildPracticeLink(recommendation) {
+    const params = new URLSearchParams();
+    params.set('subject', recommendation.subject);
+    params.set('grade', recommendation.grade);
+    params.set('count', recommendation.count || 3);
+    params.set('question_types', (recommendation.question_types || []).join(','));
+    params.set('concept', recommendation.concept || '');
+    return `/practice?${params.toString()}`;
+  }
+
+  function renderPracticeRecommendation(recommendation) {
+    if (!recommendation) {
+      practiceRecommendationEl.classList.add('hidden');
+      practiceRecommendationTitleEl.textContent = '';
+      practiceRecommendationMetaEl.textContent = '';
+      practiceRecommendationLinkEl.href = '/practice';
+      practiceRecommendationLinkEl.textContent = '去练习';
+      studyBridgeLinkEl.href = '/practice';
+      return;
+    }
+
+    practiceRecommendationTitleEl.textContent = `${recommendation.concept} · ${recommendation.subject}`;
+    practiceRecommendationMetaEl.textContent = `${recommendation.grade} · ${(recommendation.question_types || []).join(' / ')} · ${recommendation.count || 3} 题`;
+    practiceRecommendationLinkEl.href = buildPracticeLink(recommendation);
+    practiceRecommendationLinkEl.textContent = '去练习';
+    studyBridgeLinkEl.href = buildPracticeLink(recommendation);
+    practiceRecommendationEl.classList.remove('hidden');
+  }
+
+  async function askQuestion() {
+    const question = questionInput.value.trim();
+    if (!question) {
+      alert('请输入问题');
+      return;
+    }
+
+    answerPanel.classList.remove('hidden');
+    answerEmpty.classList.add('hidden');
+    answerEl.textContent = '正在生成回答...';
+    saveNoteBtn.classList.add('hidden');
+
+    const response = await fetch('/api/qa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    const data = await response.json();
+    if (data.error) {
+      answerEl.textContent = data.error;
+      renderPracticeRecommendation(null);
+      return;
+    }
+
+    answerEl.textContent = data.answer;
+    renderPracticeRecommendation(data.practice_recommendation || null);
+    latestQuestionRecord = {
+      question,
+      answer: data.answer,
+      time: new Date().toLocaleString('zh-CN'),
+      practice_recommendation: data.practice_recommendation || null,
+    };
+    localStorage.setItem('recentQuestion', JSON.stringify(latestQuestionRecord));
+    saveNoteBtn.classList.remove('hidden');
+  }
+
+  function saveToHistory() {
+    if (!latestQuestionRecord) return;
+    const history = JSON.parse(localStorage.getItem('qaHistory') || '[]');
+    history.unshift(latestQuestionRecord);
+    localStorage.setItem('qaHistory', JSON.stringify(history.slice(0, 6)));
+    renderHistory();
+  }
+
+  document.getElementById('ask-btn').addEventListener('click', askQuestion);
+  document.getElementById('save-note-btn').addEventListener('click', saveToHistory);
+  document.getElementById('clear-history').addEventListener('click', () => {
+    localStorage.removeItem('qaHistory');
+    renderHistory();
+  });
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      questionInput.value = btn.dataset.example;
+    });
+  });
+  renderHistory();
+</script>
+{% endblock %}
