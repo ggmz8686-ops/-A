@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习计划 - 智能学习助手</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "#f7f9fb",
+            surface: "#ffffff",
+            surfaceSoft: "#eef2f7",
+            line: "#d9e0ea",
+            ink: "#18212b",
+            muted: "#5e6b7a",
+            primary: "#1d4ed8",
+            secondary: "#0f766e",
+            accent: "#38bdf8",
+          },
+          boxShadow: {
+            panel: "0 12px 30px rgba(15, 23, 42, 0.07)",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .study-gradient {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #38bdf8 100%);
+    }
+    .study-gradient-soft {
+      background: linear-gradient(135deg, rgba(29,78,216,.12) 0%, rgba(56,189,248,.12) 100%);
+    }
+  </style>
+  
+</head>
+<body class="bg-background text-ink">
+  <div class="min-h-screen flex">
+    <aside class="hidden md:flex w-64 shrink-0 flex-col border-r border-line bg-white/90 backdrop-blur">
+      <div class="px-6 py-7 border-b border-line">
+        <a href="dashboard.html" class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl study-gradient text-white flex items-center justify-center shadow-panel">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <div>
+            <div class="text-lg font-extrabold text-primary">智能学习助手</div>
+            <div class="text-[11px] tracking-[0.18em] uppercase text-muted">Web Edition</div>
+          </div>
+        </a>
+      </div>
+      <nav class="px-4 py-5 space-y-2">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition text-muted hover:bg-surfaceSoft">
+          <span class="material-symbols-outlined">home</span>
+          <span>首页</span>
+        </a>
+        <a href="qa.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition text-muted hover:bg-surfaceSoft">
+          <span class="material-symbols-outlined">chat_bubble</span>
+          <span>知识问答</span>
+        </a>
+        <a href="practice.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition text-muted hover:bg-surfaceSoft">
+          <span class="material-symbols-outlined">edit_note</span>
+          <span>练习中心</span>
+        </a>
+        <a href="plan.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition bg-blue-50 text-primary border-r-4 border-primary">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <span>学习计划</span>
+        </a>
+      </nav>
+    </aside>
+    <div class="flex-1 min-w-0">
+      <header class="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-line">
+        <div class="px-5 md:px-8 py-4 flex items-center gap-4">
+          <div>
+            <div class="text-xl md:text-2xl font-extrabold">学习计划</div>
+            <div class="text-sm text-muted">输入目标、天数、学习时间和科目，生成一份可跟踪的学习安排。</div>
+          </div>
+        </div>
+      </header>
+      <main class="px-5 md:px-8 py-8">
+        
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+  <div class="xl:col-span-7">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-bold">新建学习计划</h3>
+        <span class="text-sm text-muted">快速生成每日任务并持续记录进度</span>
+      </div>
+      <form id="plan-form" class="grid md:grid-cols-4 gap-4">
+        <div class="md:col-span-4">
+          <label class="block text-sm font-semibold mb-2">学习目标</label>
+          <input id="goal" type="text" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4" placeholder="例如：两周内完成高数和英语期中复习">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">计划天数</label>
+          <input id="days" type="number" min="1" value="7" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">学习时间</label>
+          <input id="study-hours-per-day" type="number" min="0.5" step="0.5" value="2" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4">
+          <div class="text-xs text-muted mt-2">按 0.5h 为单位填写，例如 1、1.5、2。</div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold mb-2">学习科目</label>
+          <input id="subjects" type="text" class="w-full rounded-2xl bg-surfaceSoft border-0 p-4" placeholder="数学,英语,物理">
+        </div>
+        <div class="md:col-span-4">
+          <button class="study-gradient text-white rounded-2xl px-6 py-4 font-semibold shadow-panel w-full md:w-auto" type="submit">生成学习计划</button>
+        </div>
+      </form>
+      <div id="plan-form-message" class="mt-4 text-sm text-muted"></div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-5 grid sm:grid-cols-2 xl:grid-cols-1 gap-6">
+    <div class="rounded-[30px] study-gradient text-white p-6 shadow-panel">
+      <div class="text-xs tracking-[0.16em] uppercase text-blue-100 mb-3">计划总览</div>
+      <div id="plan-summary-title" class="text-2xl font-bold leading-snug">还没有计划</div>
+      <div id="plan-summary-text" class="mt-4 text-blue-50 leading-7">创建计划后，这里会显示时间范围、重点科目和执行情况。</div>
+    </div>
+
+    <div class="rounded-[30px] bg-surface p-6 shadow-panel border border-line sm:col-span-2 xl:col-span-1">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold">计划速览</h3>
+        <span class="text-sm text-muted">最新一份计划</span>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs uppercase tracking-[0.16em] text-muted mb-2">完成率</div>
+          <div id="plan-rate" class="text-3xl font-extrabold text-primary">0%</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs uppercase tracking-[0.16em] text-muted mb-2">学习天数</div>
+          <div id="plan-days-count" class="text-3xl font-extrabold text-ink">--</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs uppercase tracking-[0.16em] text-muted mb-2">任务总数</div>
+          <div id="plan-total-tasks" class="text-3xl font-extrabold text-ink">0</div>
+        </div>
+        <div class="rounded-2xl bg-surfaceSoft p-4">
+          <div class="text-xs uppercase tracking-[0.16em] text-muted mb-2">总时长</div>
+          <div id="plan-total-hours" class="text-3xl font-extrabold text-ink">0h</div>
+        </div>
+      </div>
+      <div class="mt-5">
+        <div class="flex items-center justify-between text-sm mb-2">
+          <span class="text-muted">整体进度</span>
+          <span id="plan-rate-caption" class="font-semibold text-ink">尚未开始</span>
+        </div>
+        <div class="w-full h-3 rounded-full bg-surfaceSoft overflow-hidden">
+          <div id="plan-rate-bar" class="h-full study-gradient transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-12">
+    <div class="rounded-[32px] bg-surface shadow-panel border border-line overflow-hidden">
+      <div class="study-gradient text-white px-6 md:px-8 py-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="text-xs tracking-[0.2em] uppercase text-blue-100 mb-2">Progress Report</div>
+            <h3 class="text-2xl md:text-3xl font-extrabold">进度报告</h3>
+            <p class="text-blue-50 mt-2">把完成率、科目投入和任务节奏放进同一块大屏里，一眼看清计划执行情况。</p>
+          </div>
+          <button id="refresh-report" class="rounded-2xl bg-white/15 hover:bg-white/20 transition px-4 py-3 text-sm font-semibold">更新报告</button>
+        </div>
+      </div>
+      <div id="plan-visual-report" class="p-6 md:p-8 min-h-[520px] bg-gradient-to-br from-slate-50 via-white to-blue-50/70">
+        <div class="h-full rounded-[28px] border border-dashed border-line flex items-center justify-center text-muted">加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-12">
+    <div class="rounded-[30px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-bold">当前计划任务</h3>
+        <button id="refresh-plan" class="text-sm font-semibold text-primary">刷新</button>
+      </div>
+      <div id="plan-tasks" class="grid lg:grid-cols-2 2xl:grid-cols-3 gap-4">
+        <div class="text-muted">还没有计划，先创建一个吧。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      </main>
+    </div>
+  </div>
+  
+<script>
+  const STATUS_META = {
+    completed: { label: '已完成', chip: 'bg-emerald-100 text-emerald-700', bar: '#10b981', soft: 'bg-emerald-50', text: 'text-emerald-700' },
+    in_progress: { label: '进行中', chip: 'bg-amber-100 text-amber-700', bar: '#f59e0b', soft: 'bg-amber-50', text: 'text-amber-700' },
+    pending: { label: '待完成', chip: 'bg-slate-100 text-slate-600', bar: '#94a3b8', soft: 'bg-slate-100', text: 'text-slate-700' }
+  };
+
+  const SUBJECT_COLORS = ['#2563eb', '#0f766e', '#f97316', '#7c3aed', '#e11d48', '#0891b2'];
+  let latestPlan = null;
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function parseDate(dateString) {
+    return new Date(`${dateString}T00:00:00`);
+  }
+
+  function diffDays(start, end) {
+    return Math.round((end - start) / 86400000);
+  }
+
+  function formatHours(minutes) {
+    const hours = (minutes || 0) / 60;
+    return Number.isInteger(hours) ? `${hours}h` : `${hours.toFixed(1)}h`;
+  }
+
+  function statusLabel(status) {
+    return STATUS_META[status]?.label || status;
+  }
+
+  function statusClass(status) {
+    return STATUS_META[status]?.chip || STATUS_META.pending.chip;
+  }
+
+  function getPlanDays(plan) {
+    return diffDays(parseDate(plan.start_date), parseDate(plan.end_date)) + 1;
+  }
+
+  function buildPlanSummary(plan) {
+    const subjectText = plan.subjects.join('、');
+    const studyHours = plan.study_hours_per_day ? ` · 每天 ${plan.study_hours_per_day} 小时` : '';
+    return `${plan.start_date} 至 ${plan.end_date} · ${subjectText}${studyHours}`;
+  }
+
+  function deriveMetrics(plan) {
+    const tasks = plan.tasks || [];
+    const totalMinutes = tasks.reduce((sum, task) => sum + (task.duration || 0), 0);
+    const counts = {
+      completed: tasks.filter(task => task.status === 'completed').length,
+      in_progress: tasks.filter(task => task.status === 'in_progress').length,
+      pending: tasks.filter(task => task.status === 'pending').length,
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const overdue = tasks.filter(task => task.status !== 'completed' && parseDate(task.scheduled_date) < today).length;
+    const upcomingTask = tasks.find(task => task.status !== 'completed') || null;
+
+    const subjectMap = new Map();
+    tasks.forEach((task) => {
+      const current = subjectMap.get(task.subject) || { subject: task.subject, count: 0, completed: 0, minutes: 0 };
+      current.count += 1;
+      current.minutes += task.duration || 0;
+      if (task.status === 'completed') current.completed += 1;
+      subjectMap.set(task.subject, current);
+    });
+
+    const subjects = Array.from(subjectMap.values())
+      .sort((a, b) => b.minutes - a.minutes)
+      .map((item, index) => ({
+        ...item,
+        color: SUBJECT_COLORS[index % SUBJECT_COLORS.length],
+        completionRate: item.count ? Math.round((item.completed / item.count) * 100) : 0
+      }));
+
+    return { totalMinutes, counts, overdue, upcomingTask, subjects };
+  }
+
+  function renderTaskList(plan) {
+    const tasksEl = document.getElementById('plan-tasks');
+    if (!plan) {
+      tasksEl.innerHTML = '<div class="text-muted">还没有计划，先创建一个吧。</div>';
+      return;
+    }
+
+    tasksEl.innerHTML = plan.tasks.map(task => `
+      <div class="rounded-[26px] border border-line p-5 bg-white">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="font-bold text-lg">${escapeHtml(task.task_name)}</div>
+            <div class="text-sm text-muted mt-2">${escapeHtml(task.subject)} · ${escapeHtml(task.scheduled_date)} · ${formatHours(task.duration)}</div>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full ${statusClass(task.status)} whitespace-nowrap">${statusLabel(task.status)}</span>
+        </div>
+        <div class="mt-5 flex items-center justify-between gap-4">
+          <div class="text-sm text-muted">${task.completed_at ? `完成时间：${escapeHtml(task.completed_at)}` : '完成后会自动更新这里'}</div>
+          ${task.status !== 'completed' ? `<button class="rounded-xl bg-primary text-white px-4 py-2 text-sm font-semibold" onclick="completeTask(${task.id})">标记完成</button>` : '<span class="text-sm font-semibold text-emerald-600">已打卡</span>'}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderSummary(plan) {
+    if (!plan) {
+      document.getElementById('plan-summary-title').textContent = '还没有计划';
+      document.getElementById('plan-summary-text').textContent = '创建计划后，这里会显示时间范围、重点科目和执行情况。';
+      document.getElementById('plan-rate').textContent = '0%';
+      document.getElementById('plan-rate-bar').style.width = '0%';
+      document.getElementById('plan-rate-caption').textContent = '尚未开始';
+      document.getElementById('plan-days-count').textContent = '--';
+      document.getElementById('plan-total-tasks').textContent = '0';
+      document.getElementById('plan-total-hours').textContent = '0h';
+      return;
+    }
+
+    const metrics = deriveMetrics(plan);
+    document.getElementById('plan-summary-title').textContent = plan.goal;
+    document.getElementById('plan-summary-text').textContent = buildPlanSummary(plan);
+    document.getElementById('plan-rate').textContent = `${plan.stats.completion_rate}%`;
+    document.getElementById('plan-rate-bar').style.width = `${plan.stats.completion_rate}%`;
+    document.getElementById('plan-rate-caption').textContent = metrics.overdue > 0 ? `有 ${metrics.overdue} 项已逾期` : (metrics.upcomingTask ? `下一项：${metrics.upcomingTask.subject}` : '计划已全部完成');
+    document.getElementById('plan-days-count').textContent = getPlanDays(plan);
+    document.getElementById('plan-total-tasks').textContent = plan.stats.total_tasks;
+    document.getElementById('plan-total-hours').textContent = formatHours(metrics.totalMinutes);
+  }
+
+  function renderVisualReport(plan) {
+    const container = document.getElementById('plan-visual-report');
+
+    if (!plan) {
+      container.innerHTML = `
+        <div class="h-full rounded-[28px] border border-dashed border-line flex flex-col items-center justify-center text-center px-6">
+          <div class="w-16 h-16 rounded-3xl study-gradient-soft flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-primary">analytics</span>
+          </div>
+          <div class="text-2xl font-bold text-ink">还没有可展示的进度报告</div>
+          <div class="text-muted mt-3 max-w-xl leading-7">先创建一份学习计划。生成任务后，这里会自动展示完成率、科目投入和执行节奏。</div>
+        </div>
+      `;
+      return;
+    }
+
+    const metrics = deriveMetrics(plan);
+    const totalTasks = Math.max(plan.stats.total_tasks, 1);
+    const completionRate = Number(plan.stats.completion_rate || 0);
+    const donutStyle = `background: conic-gradient(${STATUS_META.completed.bar} 0 ${completionRate}%, #dbeafe ${completionRate}% 100%)`;
+    const totalDays = getPlanDays(plan);
+
+    const start = parseDate(plan.start_date);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const elapsedDays = Math.min(Math.max(diffDays(start, now) + 1, 0), totalDays);
+    const remainingDays = Math.max(totalDays - elapsedDays, 0);
+    const scheduleRate = Math.round((elapsedDays / totalDays) * 100);
+
+    const taskTimeline = plan.tasks.map((task, index) => {
+      const meta = STATUS_META[task.status] || STATUS_META.pending;
+      const connector = index < plan.tasks.length - 1 ? '<div class="hidden md:block absolute top-7 left-[calc(100%+0.5rem)] w-6 h-px bg-line"></div>' : '';
+      return `
+        <div class="relative rounded-[24px] border border-line bg-white p-4 min-w-[220px]">
+          <div class="flex items-center justify-between gap-3">
+            <div class="w-3 h-3 rounded-full" style="background:${meta.bar}"></div>
+            <span class="text-xs px-3 py-1 rounded-full ${meta.chip}">${meta.label}</span>
+          </div>
+          <div class="mt-4 font-semibold text-ink">${escapeHtml(task.task_name)}</div>
+          <div class="text-sm text-muted mt-2">${escapeHtml(task.subject)} · ${escapeHtml(task.scheduled_date)}</div>
+          <div class="text-sm text-muted mt-1">${formatHours(task.duration)}</div>
+          ${connector}
+        </div>
+      `;
+    }).join('');
+
+    const subjectBars = metrics.subjects.length ? metrics.subjects.map((subject) => `
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-3 text-sm">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-3 h-3 rounded-full shrink-0" style="background:${subject.color}"></span>
+            <span class="font-semibold text-ink truncate">${escapeHtml(subject.subject)}</span>
+          </div>
+          <span class="text-muted shrink-0">${formatHours(subject.minutes)} · ${subject.completionRate}%</span>
+        </div>
+        <div class="h-3 rounded-full bg-surfaceSoft overflow-hidden">
+          <div class="h-full rounded-full" style="width:${subject.completionRate}%; background:${subject.color}"></div>
+        </div>
+      </div>
+    `).join('') : '<div class="text-sm text-muted">暂无科目数据</div>';
+
+    const narrative = metrics.upcomingTask
+      ? `下一项建议优先完成「${metrics.upcomingTask.task_name}」，它安排在 ${metrics.upcomingTask.scheduled_date}。`
+      : '所有任务都已完成，可以开始下一轮更高难度的计划。';
+
+    container.innerHTML = `
+      <div class="space-y-6">
+        <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="rounded-[26px] bg-white border border-line p-5">
+            <div class="text-xs uppercase tracking-[0.16em] text-muted mb-3">完成任务</div>
+            <div class="text-4xl font-extrabold text-ink">${metrics.counts.completed}</div>
+            <div class="text-sm text-muted mt-2">共 ${plan.stats.total_tasks} 项任务</div>
+          </div>
+          <div class="rounded-[26px] bg-white border border-line p-5">
+            <div class="text-xs uppercase tracking-[0.16em] text-muted mb-3">待处理</div>
+            <div class="text-4xl font-extrabold text-ink">${metrics.counts.pending + metrics.counts.in_progress}</div>
+            <div class="text-sm text-muted mt-2">${metrics.overdue ? `${metrics.overdue} 项已逾期` : '当前没有逾期提醒'}</div>
+          </div>
+          <div class="rounded-[26px] bg-white border border-line p-5">
+            <div class="text-xs uppercase tracking-[0.16em] text-muted mb-3">累计时长</div>
+            <div class="text-4xl font-extrabold text-ink">${formatHours(metrics.totalMinutes)}</div>
+            <div class="text-sm text-muted mt-2">${metrics.subjects.length} 个科目在学</div>
+          </div>
+          <div class="rounded-[26px] bg-white border border-line p-5">
+            <div class="text-xs uppercase tracking-[0.16em] text-muted mb-3">剩余天数</div>
+            <div class="text-4xl font-extrabold text-ink">${remainingDays}</div>
+            <div class="text-sm text-muted mt-2">计划周期共 ${totalDays} 天</div>
+          </div>
+        </div>
+
+        <div class="grid xl:grid-cols-[1.35fr,0.95fr] gap-6">
+          <div class="rounded-[28px] bg-white border border-line p-6">
+            <div class="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <div class="text-sm font-semibold text-muted">执行进度</div>
+                <div class="text-2xl font-bold text-ink mt-1">完成率与任务状态</div>
+              </div>
+              <div class="text-sm text-muted">目标：${escapeHtml(plan.goal)}</div>
+            </div>
+            <div class="grid lg:grid-cols-[260px,1fr] gap-6 items-center">
+              <div class="flex justify-center">
+                <div class="w-56 h-56 rounded-full p-4" style="${donutStyle}">
+                  <div class="w-full h-full rounded-full bg-white flex flex-col items-center justify-center text-center shadow-inner">
+                    <div class="text-sm uppercase tracking-[0.18em] text-muted">完成率</div>
+                    <div class="text-5xl font-extrabold text-primary mt-2">${completionRate}%</div>
+                    <div class="text-sm text-muted mt-2">${metrics.counts.completed}/${plan.stats.total_tasks} 项任务</div>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-5">
+                <div>
+                  <div class="flex items-center justify-between text-sm mb-2">
+                    <span class="text-muted">任务推进条</span>
+                    <span class="font-semibold text-ink">${metrics.counts.completed} 已完成 / ${totalTasks} 总任务</span>
+                  </div>
+                  <div class="w-full h-4 rounded-full bg-surfaceSoft overflow-hidden flex">
+                    <div style="width:${(metrics.counts.completed / totalTasks) * 100}%; background:${STATUS_META.completed.bar}"></div>
+                    <div style="width:${(metrics.counts.in_progress / totalTasks) * 100}%; background:${STATUS_META.in_progress.bar}"></div>
+                    <div style="width:${(metrics.counts.pending / totalTasks) * 100}%; background:${STATUS_META.pending.bar}"></div>
+                  </div>
+                </div>
+                <div class="grid sm:grid-cols-3 gap-3">
+                  <div class="rounded-2xl ${STATUS_META.completed.soft} p-4">
+                    <div class="text-sm ${STATUS_META.completed.text} font-semibold">已完成</div>
+                    <div class="text-3xl font-extrabold text-ink mt-2">${metrics.counts.completed}</div>
+                  </div>
+                  <div class="rounded-2xl ${STATUS_META.in_progress.soft} p-4">
+                    <div class="text-sm ${STATUS_META.in_progress.text} font-semibold">进行中</div>
+                    <div class="text-3xl font-extrabold text-ink mt-2">${metrics.counts.in_progress}</div>
+                  </div>
+                  <div class="rounded-2xl ${STATUS_META.pending.soft} p-4">
+                    <div class="text-sm ${STATUS_META.pending.text} font-semibold">待完成</div>
+                    <div class="text-3xl font-extrabold text-ink mt-2">${metrics.counts.pending}</div>
+                  </div>
+                </div>
+                <div class="rounded-2xl study-gradient-soft border border-blue-100 p-5">
+                  <div class="text-sm font-semibold text-primary">下一步建议</div>
+                  <div class="text-base text-ink mt-2 leading-7">${escapeHtml(narrative)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="rounded-[28px] bg-white border border-line p-6">
+              <div class="text-sm font-semibold text-muted">学习节奏</div>
+              <div class="text-2xl font-bold text-ink mt-1">时间进度 vs 任务进度</div>
+              <div class="mt-5 space-y-4">
+                <div>
+                  <div class="flex items-center justify-between text-sm mb-2">
+                    <span class="text-muted">日程走到哪里</span>
+                    <span class="font-semibold text-ink">${scheduleRate}%</span>
+                  </div>
+                  <div class="h-3 rounded-full bg-surfaceSoft overflow-hidden">
+                    <div class="h-full rounded-full bg-slate-400" style="width:${scheduleRate}%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-sm mb-2">
+                    <span class="text-muted">任务完成到哪里</span>
+                    <span class="font-semibold text-ink">${completionRate}%</span>
+                  </div>
+                  <div class="h-3 rounded-full bg-surfaceSoft overflow-hidden">
+                    <div class="h-full rounded-full study-gradient" style="width:${completionRate}%"></div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                  <div class="rounded-2xl bg-surfaceSoft p-4">
+                    <div class="text-sm text-muted">已过去</div>
+                    <div class="text-3xl font-extrabold text-ink mt-2">${elapsedDays}</div>
+                    <div class="text-sm text-muted mt-1">天</div>
+                  </div>
+                  <div class="rounded-2xl bg-surfaceSoft p-4">
+                    <div class="text-sm text-muted">剩余</div>
+                    <div class="text-3xl font-extrabold text-ink mt-2">${remainingDays}</div>
+                    <div class="text-sm text-muted mt-1">天</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-[28px] bg-white border border-line p-6">
+              <div class="text-sm font-semibold text-muted">科目投入</div>
+              <div class="text-2xl font-bold text-ink mt-1">各科完成度</div>
+              <div class="mt-5 space-y-4">${subjectBars}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[28px] bg-white border border-line p-6">
+          <div class="flex items-center justify-between gap-4 mb-5">
+            <div>
+              <div class="text-sm font-semibold text-muted">任务时间线</div>
+              <div class="text-2xl font-bold text-ink mt-1">按日期查看任务推进</div>
+            </div>
+            <div class="text-sm text-muted">${plan.start_date} 至 ${plan.end_date}</div>
+          </div>
+          <div class="flex gap-4 overflow-x-auto pb-2">${taskTimeline}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function refreshPlanData() {
+    const response = await fetch('/api/plan/latest');
+    const planData = await response.json();
+    latestPlan = planData.plan || null;
+    renderSummary(latestPlan);
+    renderTaskList(latestPlan);
+    renderVisualReport(latestPlan);
+  }
+
+  async function completeTask(taskId) {
+    const response = await fetch('/api/plan/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_id: taskId, status: 'completed' })
+    });
+    const data = await response.json();
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    await refreshPlanData();
+  }
+
+  document.getElementById('plan-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const goal = document.getElementById('goal').value.trim();
+    const days = Number(document.getElementById('days').value || 7);
+    const studyHoursPerDay = Number(document.getElementById('study-hours-per-day').value || 2);
+    const subjects = document.getElementById('subjects').value.trim();
+    const messageEl = document.getElementById('plan-form-message');
+
+    if (!goal || !subjects || studyHoursPerDay <= 0) {
+      messageEl.textContent = '请先填写目标、学习时间和科目。';
+      return;
+    }
+
+    messageEl.textContent = '正在生成计划...';
+    const response = await fetch('/api/plan/make', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goal, days, subjects, study_hours_per_day: studyHoursPerDay })
+    });
+    const data = await response.json();
+    if (data.error) {
+      messageEl.textContent = data.error;
+      return;
+    }
+
+    messageEl.textContent = `计划已生成：${data.goal}（共 ${data.total_days} 天，每天 ${data.study_hours_per_day} 小时）`;
+    document.getElementById('plan-form').reset();
+    document.getElementById('days').value = 7;
+    document.getElementById('study-hours-per-day').value = 2;
+    await refreshPlanData();
+  });
+
+  document.getElementById('refresh-plan').addEventListener('click', refreshPlanData);
+  document.getElementById('refresh-report').addEventListener('click', refreshPlanData);
+  refreshPlanData();
+</script>
+
+
+<script>
+(function () {
+  const mockMap = {"/api/dashboard": {"latest_plan": {"created_at": "2026-04-26 19:53:34", "end_date": "2026-05-02", "goal": "数学", "id": 11, "start_date": "2026-04-26", "stats": {"completed_tasks": 0, "completion_rate": 0.0, "total_tasks": 7}, "study_hours_per_day": 2.0, "subjects": ["数学"], "tasks": [{"completed_at": null, "duration": 120, "id": 77, "scheduled_date": "2026-04-26", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 78, "scheduled_date": "2026-04-27", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 79, "scheduled_date": "2026-04-28", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 80, "scheduled_date": "2026-04-29", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 81, "scheduled_date": "2026-04-30", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 82, "scheduled_date": "2026-05-01", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 83, "scheduled_date": "2026-05-02", "status": "pending", "subject": "数学", "task_name": "学习数学"}]}, "recent_wrong_questions": [{"correct_answer": "对", "difficulty": "小学五年级", "explanation": "2 大于 1，并且只有 1 和 2 两个正因数，所以它是最小的质数。", "grade": "小学五年级", "id": 11, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": ["对", "错"], "question": "2 是最小的质数。", "question_type": "判断", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 20:24:53", "type": "判断", "user_answer": "错"}, {"correct_answer": "牛顿第二定律指出，物体的加速度跟所受合外力成正比，跟质量成反比，方向与合外力方向相同，可表示为 F=ma。", "difficulty": "高一", "explanation": "说到比例关系和公式，就已经很接近标准答案了。", "grade": "高一", "id": 7, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "牛顿第二定律的内容是什么？", "question_type": "简答", "review_count": 0, "subject": "物理", "timestamp": "2026-04-26 19:22:23", "type": "简答", "user_answer": "加速度和合外力有关，质量越大加速度越小，公式是F=ma。"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 6, "last_reviewed_at": "2026-04-26 19:20:33", "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 1, "subject": "数学", "timestamp": "2026-04-26 19:02:26", "type": "简答", "user_answer": "a² + b² = c²"}], "stats": {"completed_tasks": 0, "completion_rate": 0.0, "total_tasks": 7, "wrong_questions_count": 8}, "today_tasks": [{"completed_at": null, "duration": 120, "id": 77, "scheduled_date": "2026-04-26", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 78, "scheduled_date": "2026-04-27", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 79, "scheduled_date": "2026-04-28", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 80, "scheduled_date": "2026-04-29", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 81, "scheduled_date": "2026-04-30", "status": "pending", "subject": "数学", "task_name": "学习数学"}]}, "/api/practice/metadata": {"grades": ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级", "初一", "初二", "初三", "高一", "高二", "高三", "大学"], "question_types": ["单选", "多选", "判断", "简答"], "subjects_by_grade": {"初一": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"], "初三": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"], "初二": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"], "大学": ["高等数学", "大学英语", "计算机基础", "程序设计", "Python", "经济学"], "小学一年级": ["语文", "数学"], "小学三年级": ["语文", "数学", "英语", "科学"], "小学二年级": ["语文", "数学"], "小学五年级": ["语文", "数学", "英语", "科学"], "小学六年级": ["语文", "数学", "英语", "科学"], "小学四年级": ["语文", "数学", "英语", "科学"], "高一": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"], "高三": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"], "高二": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"]}}, "/api/practice/wrong?status=active": {"summary": {"active": 8, "mastered": 1, "top_subjects": [{"count": 7, "subject": "数学"}, {"count": 1, "subject": "物理"}], "total": 9, "total_reviews": 2}, "wrong_questions": [{"correct_answer": "对", "difficulty": "小学五年级", "explanation": "2 大于 1，并且只有 1 和 2 两个正因数，所以它是最小的质数。", "grade": "小学五年级", "id": 11, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": ["对", "错"], "question": "2 是最小的质数。", "question_type": "判断", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 20:24:53", "type": "判断", "user_answer": "错"}, {"correct_answer": "牛顿第二定律指出，物体的加速度跟所受合外力成正比，跟质量成反比，方向与合外力方向相同，可表示为 F=ma。", "difficulty": "高一", "explanation": "说到比例关系和公式，就已经很接近标准答案了。", "grade": "高一", "id": 7, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "牛顿第二定律的内容是什么？", "question_type": "简答", "review_count": 0, "subject": "物理", "timestamp": "2026-04-26 19:22:23", "type": "简答", "user_answer": "加速度和合外力有关，质量越大加速度越小，公式是F=ma。"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 6, "last_reviewed_at": "2026-04-26 19:20:33", "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 1, "subject": "数学", "timestamp": "2026-04-26 19:02:26", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 5, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:02:15", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 4, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:02:14", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 3, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:02:13", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 2, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:01:58", "type": "简答", "user_answer": "不知道"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 1, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-03-28 15:44:11", "type": "简答", "user_answer": "7"}]}, "/api/practice/wrong?status=mastered": {"summary": {"active": 8, "mastered": 1, "top_subjects": [{"count": 7, "subject": "数学"}, {"count": 1, "subject": "物理"}], "total": 9, "total_reviews": 2}, "wrong_questions": [{"correct_answer": "list、dict、tuple", "difficulty": "高一", "explanation": "list、dict、tuple 都是常见内置类型，classroom 不是类型名。", "grade": "高一", "id": 8, "last_reviewed_at": "2026-04-26 20:16:44", "mastered_at": "2026-04-26 20:16:44", "notebook_status": "mastered", "options": ["list", "dict", "classroom", "tuple"], "question": "下面哪些是 Python 的常见内置数据类型？", "question_type": "多选", "review_count": 1, "subject": "Python", "timestamp": "2026-04-26 20:16:44", "type": "多选", "user_answer": "list、dict、tuple"}]}, "/api/plan/latest": {"plan": {"created_at": "2026-04-26 19:53:34", "end_date": "2026-05-02", "goal": "数学", "id": 11, "start_date": "2026-04-26", "stats": {"completed_tasks": 0, "completion_rate": 0.0, "total_tasks": 7}, "study_hours_per_day": 2.0, "subjects": ["数学"], "tasks": [{"completed_at": null, "duration": 120, "id": 77, "scheduled_date": "2026-04-26", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 78, "scheduled_date": "2026-04-27", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 79, "scheduled_date": "2026-04-28", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 80, "scheduled_date": "2026-04-29", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 81, "scheduled_date": "2026-04-30", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 82, "scheduled_date": "2026-05-01", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 83, "scheduled_date": "2026-05-02", "status": "pending", "subject": "数学", "task_name": "学习数学"}]}}};
+  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+  const previewError = { error: '???????????????????????' };
+  function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+  window.fetch = async function(input, init) {
+    const url = typeof input === 'string' ? input : input.url;
+    const method = ((init && init.method) || (typeof input !== 'string' && input.method) || 'GET').toUpperCase();
+    if (url && url.startsWith('/api/')) {
+      if (method === 'GET' && Object.prototype.hasOwnProperty.call(mockMap, url)) {
+        return { ok: true, json: async () => clone(mockMap[url]) };
+      }
+      return { ok: false, json: async () => clone(previewError) };
+    }
+    if (originalFetch) return originalFetch(input, init);
+    throw new Error('Fetch unavailable');
+  };
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识问答 - 智能学习助手</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "#f7f9fb",
+            surface: "#ffffff",
+            surfaceSoft: "#eef2f7",
+            line: "#d9e0ea",
+            ink: "#18212b",
+            muted: "#5e6b7a",
+            primary: "#1d4ed8",
+            secondary: "#0f766e",
+            accent: "#38bdf8",
+          },
+          boxShadow: {
+            panel: "0 12px 30px rgba(15, 23, 42, 0.07)",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .study-gradient {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #38bdf8 100%);
+    }
+    .study-gradient-soft {
+      background: linear-gradient(135deg, rgba(29,78,216,.12) 0%, rgba(56,189,248,.12) 100%);
+    }
+  </style>
+  
+</head>
+<body class="bg-background text-ink">
+  <div class="min-h-screen flex">
+    <aside class="hidden md:flex w-64 shrink-0 flex-col border-r border-line bg-white/90 backdrop-blur">
+      <div class="px-6 py-7 border-b border-line">
+        <a href="dashboard.html" class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl study-gradient text-white flex items-center justify-center shadow-panel">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <div>
+            <div class="text-lg font-extrabold text-primary">智能学习助手</div>
+            <div class="text-[11px] tracking-[0.18em] uppercase text-muted">Web Edition</div>
+          </div>
+        </a>
+      </div>
+      <nav class="px-4 py-5 space-y-2">
+        <a href="dashboard.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition text-muted hover:bg-surfaceSoft">
+          <span class="material-symbols-outlined">home</span>
+          <span>首页</span>
+        </a>
+        <a href="qa.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition bg-blue-50 text-primary border-r-4 border-primary">
+          <span class="material-symbols-outlined">chat_bubble</span>
+          <span>知识问答</span>
+        </a>
+        <a href="practice.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition text-muted hover:bg-surfaceSoft">
+          <span class="material-symbols-outlined">edit_note</span>
+          <span>练习中心</span>
+        </a>
+        <a href="plan.html" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition text-muted hover:bg-surfaceSoft">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <span>学习计划</span>
+        </a>
+      </nav>
+    </aside>
+    <div class="flex-1 min-w-0">
+      <header class="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-line">
+        <div class="px-5 md:px-8 py-4 flex items-center gap-4">
+          <div>
+            <div class="text-xl md:text-2xl font-extrabold">知识问答</div>
+            <div class="text-sm text-muted">输入一个知识点、公式、概念或原理，系统会给出解释、步骤和易错点。</div>
+          </div>
+        </div>
+      </header>
+      <main class="px-5 md:px-8 py-8">
+        
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+  <div class="xl:col-span-7">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line">
+      <div class="text-xs tracking-[0.18em] uppercase text-secondary font-bold mb-4">AI Tutor Interface</div>
+      <label class="block text-sm font-semibold mb-3" for="question">你的问题</label>
+      <textarea id="question" class="w-full rounded-[24px] border-0 bg-surfaceSoft p-6 text-lg leading-8 focus:ring-2 focus:ring-primary/20 min-h-[180px]" placeholder="例如：为什么货币政策会有时滞效应？"></textarea>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button id="ask-btn" class="study-gradient text-white rounded-2xl px-6 py-3 font-semibold shadow-panel">开始提问</button>
+        <button data-example="什么是质数？" class="example-btn rounded-2xl px-4 py-3 bg-surfaceSoft text-sm font-medium">质数是什么？</button>
+        <button data-example="如何学习 Python？" class="example-btn rounded-2xl px-4 py-3 bg-surfaceSoft text-sm font-medium">如何学习 Python？</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-5">
+    <div class="rounded-[30px] p-6 study-gradient text-white shadow-panel">
+      <div class="text-xs tracking-[0.16em] uppercase text-blue-100 mb-3">学习串联</div>
+      <h3 class="text-2xl font-bold leading-snug">提问之后，建议直接做 3 道相关练习题。</h3>
+      <p class="mt-4 text-blue-50 leading-7">问答页适合理解概念，练习页适合巩固记忆。把它们串起来，学习效果会更稳定。</p>
+      <a id="study-bridge-link" href="practice.html" class="inline-flex mt-5 rounded-2xl bg-white text-primary px-4 py-3 font-semibold">去练习</a>
+    </div>
+  </div>
+</section>
+
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+  <div class="xl:col-span-8">
+    <div class="rounded-[30px] bg-surface p-6 md:p-8 shadow-panel border border-line min-h-[360px]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-bold">AI 分析结果</h3>
+        <button id="save-note-btn" class="text-sm font-semibold text-primary hidden">保存到最近记录</button>
+      </div>
+      <div id="answer-empty" class="text-muted leading-8">提交问题后，这里会显示解释、步骤和易错点。</div>
+      <div id="answer-panel" class="hidden space-y-5">
+        <div class="rounded-2xl bg-surfaceSoft p-5">
+          <div class="text-sm font-bold text-primary mb-2">回答</div>
+          <div id="answer" class="whitespace-pre-wrap leading-8 text-[15px]"></div>
+        </div>
+        <div id="practice-recommendation" class="hidden rounded-2xl border border-line bg-white p-5">
+          <div class="text-sm font-bold text-primary mb-2">推荐练习</div>
+          <div id="practice-recommendation-title" class="font-semibold text-ink"></div>
+          <div id="practice-recommendation-meta" class="text-sm text-muted mt-2 leading-7"></div>
+          <a id="practice-recommendation-link" href="practice.html" class="inline-flex mt-4 rounded-2xl study-gradient text-white px-4 py-3 font-semibold">去练习</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="xl:col-span-4">
+    <div class="rounded-[30px] bg-surface p-6 shadow-panel border border-line">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold">最近提问</h3>
+        <button id="clear-history" class="text-sm text-muted">清空</button>
+      </div>
+      <div id="question-history" class="space-y-3 text-sm text-muted">
+        <div>还没有提问记录。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      </main>
+    </div>
+  </div>
+  
+<script>
+  const questionInput = document.getElementById('question');
+  const answerPanel = document.getElementById('answer-panel');
+  const answerEmpty = document.getElementById('answer-empty');
+  const answerEl = document.getElementById('answer');
+  const saveNoteBtn = document.getElementById('save-note-btn');
+  const studyBridgeLinkEl = document.getElementById('study-bridge-link');
+  const practiceRecommendationEl = document.getElementById('practice-recommendation');
+  const practiceRecommendationTitleEl = document.getElementById('practice-recommendation-title');
+  const practiceRecommendationMetaEl = document.getElementById('practice-recommendation-meta');
+  const practiceRecommendationLinkEl = document.getElementById('practice-recommendation-link');
+  let latestQuestionRecord = null;
+  let historyRecords = [];
+
+  function renderHistory() {
+    historyRecords = JSON.parse(localStorage.getItem('qaHistory') || '[]');
+    const historyEl = document.getElementById('question-history');
+    if (!historyRecords.length) {
+      historyEl.innerHTML = '<div>还没有提问记录。</div>';
+      return;
+    }
+    historyEl.innerHTML = historyRecords.map((item, index) => `
+      <button class="w-full text-left rounded-2xl bg-surfaceSoft p-4 hover:bg-blue-50 transition" onclick="restoreQuestion(${index})">
+        <div class="font-medium text-ink">${item.question}</div>
+        <div class="text-xs text-muted mt-1">${item.time}</div>
+      </button>
+    `).join('');
+  }
+
+  function restoreQuestion(index) {
+    const item = historyRecords[index];
+    if (!item) return;
+    questionInput.value = item.question;
+    answerPanel.classList.remove('hidden');
+    answerEmpty.classList.add('hidden');
+    answerEl.textContent = item.answer;
+    renderPracticeRecommendation(item.practice_recommendation || null);
+  }
+
+  function buildPracticeLink(recommendation) {
+    const params = new URLSearchParams();
+    params.set('subject', recommendation.subject);
+    params.set('grade', recommendation.grade);
+    params.set('count', recommendation.count || 3);
+    params.set('question_types', (recommendation.question_types || []).join(','));
+    params.set('concept', recommendation.concept || '');
+    return `practice.html?${params.toString()}`;
+  }
+
+  function renderPracticeRecommendation(recommendation) {
+    if (!recommendation) {
+      practiceRecommendationEl.classList.add('hidden');
+      practiceRecommendationTitleEl.textContent = '';
+      practiceRecommendationMetaEl.textContent = '';
+      practiceRecommendationLinkEl.href = 'practice.html';
+      practiceRecommendationLinkEl.textContent = '去练习';
+      studyBridgeLinkEl.href = 'practice.html';
+      return;
+    }
+
+    practiceRecommendationTitleEl.textContent = `${recommendation.concept} · ${recommendation.subject}`;
+    practiceRecommendationMetaEl.textContent = `${recommendation.grade} · ${(recommendation.question_types || []).join(' / ')} · ${recommendation.count || 3} 题`;
+    practiceRecommendationLinkEl.href = buildPracticeLink(recommendation);
+    practiceRecommendationLinkEl.textContent = '去练习';
+    studyBridgeLinkEl.href = buildPracticeLink(recommendation);
+    practiceRecommendationEl.classList.remove('hidden');
+  }
+
+  async function askQuestion() {
+    const question = questionInput.value.trim();
+    if (!question) {
+      alert('请输入问题');
+      return;
+    }
+
+    answerPanel.classList.remove('hidden');
+    answerEmpty.classList.add('hidden');
+    answerEl.textContent = '正在生成回答...';
+    saveNoteBtn.classList.add('hidden');
+
+    const response = await fetch('/api/qa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    const data = await response.json();
+    if (data.error) {
+      answerEl.textContent = data.error;
+      renderPracticeRecommendation(null);
+      return;
+    }
+
+    answerEl.textContent = data.answer;
+    renderPracticeRecommendation(data.practice_recommendation || null);
+    latestQuestionRecord = {
+      question,
+      answer: data.answer,
+      time: new Date().toLocaleString('zh-CN'),
+      practice_recommendation: data.practice_recommendation || null,
+    };
+    localStorage.setItem('recentQuestion', JSON.stringify(latestQuestionRecord));
+    saveNoteBtn.classList.remove('hidden');
+  }
+
+  function saveToHistory() {
+    if (!latestQuestionRecord) return;
+    const history = JSON.parse(localStorage.getItem('qaHistory') || '[]');
+    history.unshift(latestQuestionRecord);
+    localStorage.setItem('qaHistory', JSON.stringify(history.slice(0, 6)));
+    renderHistory();
+  }
+
+  document.getElementById('ask-btn').addEventListener('click', askQuestion);
+  document.getElementById('save-note-btn').addEventListener('click', saveToHistory);
+  document.getElementById('clear-history').addEventListener('click', () => {
+    localStorage.removeItem('qaHistory');
+    renderHistory();
+  });
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      questionInput.value = btn.dataset.example;
+    });
+  });
+  renderHistory();
+</script>
+
+
+<script>
+(function () {
+  const mockMap = {"/api/dashboard": {"latest_plan": {"created_at": "2026-04-26 19:53:34", "end_date": "2026-05-02", "goal": "数学", "id": 11, "start_date": "2026-04-26", "stats": {"completed_tasks": 0, "completion_rate": 0.0, "total_tasks": 7}, "study_hours_per_day": 2.0, "subjects": ["数学"], "tasks": [{"completed_at": null, "duration": 120, "id": 77, "scheduled_date": "2026-04-26", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 78, "scheduled_date": "2026-04-27", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 79, "scheduled_date": "2026-04-28", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 80, "scheduled_date": "2026-04-29", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 81, "scheduled_date": "2026-04-30", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 82, "scheduled_date": "2026-05-01", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 83, "scheduled_date": "2026-05-02", "status": "pending", "subject": "数学", "task_name": "学习数学"}]}, "recent_wrong_questions": [{"correct_answer": "对", "difficulty": "小学五年级", "explanation": "2 大于 1，并且只有 1 和 2 两个正因数，所以它是最小的质数。", "grade": "小学五年级", "id": 11, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": ["对", "错"], "question": "2 是最小的质数。", "question_type": "判断", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 20:24:53", "type": "判断", "user_answer": "错"}, {"correct_answer": "牛顿第二定律指出，物体的加速度跟所受合外力成正比，跟质量成反比，方向与合外力方向相同，可表示为 F=ma。", "difficulty": "高一", "explanation": "说到比例关系和公式，就已经很接近标准答案了。", "grade": "高一", "id": 7, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "牛顿第二定律的内容是什么？", "question_type": "简答", "review_count": 0, "subject": "物理", "timestamp": "2026-04-26 19:22:23", "type": "简答", "user_answer": "加速度和合外力有关，质量越大加速度越小，公式是F=ma。"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 6, "last_reviewed_at": "2026-04-26 19:20:33", "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 1, "subject": "数学", "timestamp": "2026-04-26 19:02:26", "type": "简答", "user_answer": "a² + b² = c²"}], "stats": {"completed_tasks": 0, "completion_rate": 0.0, "total_tasks": 7, "wrong_questions_count": 8}, "today_tasks": [{"completed_at": null, "duration": 120, "id": 77, "scheduled_date": "2026-04-26", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 78, "scheduled_date": "2026-04-27", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 79, "scheduled_date": "2026-04-28", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 80, "scheduled_date": "2026-04-29", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 81, "scheduled_date": "2026-04-30", "status": "pending", "subject": "数学", "task_name": "学习数学"}]}, "/api/practice/metadata": {"grades": ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级", "初一", "初二", "初三", "高一", "高二", "高三", "大学"], "question_types": ["单选", "多选", "判断", "简答"], "subjects_by_grade": {"初一": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"], "初三": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"], "初二": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"], "大学": ["高等数学", "大学英语", "计算机基础", "程序设计", "Python", "经济学"], "小学一年级": ["语文", "数学"], "小学三年级": ["语文", "数学", "英语", "科学"], "小学二年级": ["语文", "数学"], "小学五年级": ["语文", "数学", "英语", "科学"], "小学六年级": ["语文", "数学", "英语", "科学"], "小学四年级": ["语文", "数学", "英语", "科学"], "高一": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"], "高三": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"], "高二": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"]}}, "/api/practice/wrong?status=active": {"summary": {"active": 8, "mastered": 1, "top_subjects": [{"count": 7, "subject": "数学"}, {"count": 1, "subject": "物理"}], "total": 9, "total_reviews": 2}, "wrong_questions": [{"correct_answer": "对", "difficulty": "小学五年级", "explanation": "2 大于 1，并且只有 1 和 2 两个正因数，所以它是最小的质数。", "grade": "小学五年级", "id": 11, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": ["对", "错"], "question": "2 是最小的质数。", "question_type": "判断", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 20:24:53", "type": "判断", "user_answer": "错"}, {"correct_answer": "牛顿第二定律指出，物体的加速度跟所受合外力成正比，跟质量成反比，方向与合外力方向相同，可表示为 F=ma。", "difficulty": "高一", "explanation": "说到比例关系和公式，就已经很接近标准答案了。", "grade": "高一", "id": 7, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "牛顿第二定律的内容是什么？", "question_type": "简答", "review_count": 0, "subject": "物理", "timestamp": "2026-04-26 19:22:23", "type": "简答", "user_answer": "加速度和合外力有关，质量越大加速度越小，公式是F=ma。"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 6, "last_reviewed_at": "2026-04-26 19:20:33", "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 1, "subject": "数学", "timestamp": "2026-04-26 19:02:26", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 5, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:02:15", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 4, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:02:14", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 3, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:02:13", "type": "简答", "user_answer": "a² + b² = c²"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 2, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-04-26 19:01:58", "type": "简答", "user_answer": "不知道"}, {"correct_answer": "勾股定理是一个基本的几何定理，指直角三角形的两条直角边的平方和等于斜边的平方。", "difficulty": "未知", "explanation": "", "grade": "初一", "id": 1, "last_reviewed_at": null, "mastered_at": null, "notebook_status": "active", "options": [], "question": "什么是勾股定理？", "question_type": "简答", "review_count": 0, "subject": "数学", "timestamp": "2026-03-28 15:44:11", "type": "简答", "user_answer": "7"}]}, "/api/practice/wrong?status=mastered": {"summary": {"active": 8, "mastered": 1, "top_subjects": [{"count": 7, "subject": "数学"}, {"count": 1, "subject": "物理"}], "total": 9, "total_reviews": 2}, "wrong_questions": [{"correct_answer": "list、dict、tuple", "difficulty": "高一", "explanation": "list、dict、tuple 都是常见内置类型，classroom 不是类型名。", "grade": "高一", "id": 8, "last_reviewed_at": "2026-04-26 20:16:44", "mastered_at": "2026-04-26 20:16:44", "notebook_status": "mastered", "options": ["list", "dict", "classroom", "tuple"], "question": "下面哪些是 Python 的常见内置数据类型？", "question_type": "多选", "review_count": 1, "subject": "Python", "timestamp": "2026-04-26 20:16:44", "type": "多选", "user_answer": "list、dict、tuple"}]}, "/api/plan/latest": {"plan": {"created_at": "2026-04-26 19:53:34", "end_date": "2026-05-02", "goal": "数学", "id": 11, "start_date": "2026-04-26", "stats": {"completed_tasks": 0, "completion_rate": 0.0, "total_tasks": 7}, "study_hours_per_day": 2.0, "subjects": ["数学"], "tasks": [{"completed_at": null, "duration": 120, "id": 77, "scheduled_date": "2026-04-26", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 78, "scheduled_date": "2026-04-27", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 79, "scheduled_date": "2026-04-28", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 80, "scheduled_date": "2026-04-29", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 81, "scheduled_date": "2026-04-30", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 82, "scheduled_date": "2026-05-01", "status": "pending", "subject": "数学", "task_name": "学习数学"}, {"completed_at": null, "duration": 120, "id": 83, "scheduled_date": "2026-05-02", "status": "pending", "subject": "数学", "task_name": "学习数学"}]}}};
+  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+  const previewError = { error: '???????????????????????' };
+  function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+  window.fetch = async function(input, init) {
+    const url = typeof input === 'string' ? input : input.url;
+    const method = ((init && init.method) || (typeof input !== 'string' && input.method) || 'GET').toUpperCase();
+    if (url && url.startsWith('/api/')) {
+      if (method === 'GET' && Object.prototype.hasOwnProperty.call(mockMap, url)) {
+        return { ok: true, json: async () => clone(mockMap[url]) };
+      }
+      return { ok: false, json: async () => clone(previewError) };
+    }
+    if (originalFetch) return originalFetch(input, init);
+    throw new Error('Fetch unavailable');
+  };
+})();
+</script>
+
+</body>
+</html>
