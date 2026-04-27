@@ -1,0 +1,102 @@
+window.__SLA_PREVIEW_SEED__ = {
+  version: 2,
+  nextPlanId: 2,
+  nextTaskId: 100,
+  nextWrongId: 20,
+  latestPlan: {
+    id: 1,
+    goal: "两周内完成高数和英语复习",
+    start_date: "2026-04-27",
+    end_date: "2026-05-03",
+    created_at: "2026-04-27 15:30:00",
+    study_hours_per_day: 2,
+    subjects: ["高数", "英语"],
+    tasks: [
+      { id: 1, task_name: "学习高数", subject: "高数", duration: 120, status: "completed", scheduled_date: "2026-04-27", completed_at: "2026-04-27 20:10:00" },
+      { id: 2, task_name: "学习英语", subject: "英语", duration: 120, status: "in_progress", scheduled_date: "2026-04-28", completed_at: null },
+      { id: 3, task_name: "学习高数", subject: "高数", duration: 120, status: "pending", scheduled_date: "2026-04-29", completed_at: null },
+      { id: 4, task_name: "学习英语", subject: "英语", duration: 120, status: "pending", scheduled_date: "2026-04-30", completed_at: null },
+      { id: 5, task_name: "学习高数", subject: "高数", duration: 120, status: "pending", scheduled_date: "2026-05-01", completed_at: null },
+      { id: 6, task_name: "学习英语", subject: "英语", duration: 120, status: "pending", scheduled_date: "2026-05-02", completed_at: null },
+      { id: 7, task_name: "学习高数", subject: "高数", duration: 120, status: "pending", scheduled_date: "2026-05-03", completed_at: null }
+    ]
+  },
+  wrongQuestions: [
+    {
+      id: 11,
+      question: "2 是最小的质数。",
+      correct_answer: "对",
+      user_answer: "错",
+      explanation: "2 大于 1，并且只有 1 和 2 两个正因数，所以它是最小的质数。",
+      improvement: "先判断是否大于 1，再判断因数个数。",
+      question_type: "判断",
+      type: "判断",
+      subject: "数学",
+      grade: "小学五年级",
+      difficulty: "小学五年级",
+      options: ["对", "错"],
+      notebook_status: "active",
+      review_count: 0,
+      timestamp: "2026-04-27 14:40:00",
+      last_reviewed_at: null,
+      mastered_at: null
+    },
+    {
+      id: 12,
+      question: "牛顿第二定律的内容是什么？",
+      correct_answer: "物体的加速度跟所受合外力成正比，跟质量成反比，可表示为 F=ma。",
+      user_answer: "加速度和受力有关，质量越大加速度越小。",
+      explanation: "比例关系和公式都需要说完整。",
+      improvement: "补充“成正比 / 成反比”以及公式 F=ma。",
+      question_type: "简答",
+      type: "简答",
+      subject: "物理",
+      grade: "高一",
+      difficulty: "高一",
+      options: [],
+      notebook_status: "active",
+      review_count: 1,
+      timestamp: "2026-04-27 14:20:00",
+      last_reviewed_at: "2026-04-27 14:30:00",
+      mastered_at: null
+    },
+    {
+      id: 13,
+      question: "下面哪些是 Python 的常见内置数据类型？",
+      correct_answer: "list、dict、tuple",
+      user_answer: "list、dict、tuple",
+      explanation: "list、dict、tuple 都是常见内置类型。",
+      improvement: "",
+      question_type: "多选",
+      type: "多选",
+      subject: "Python",
+      grade: "高一",
+      difficulty: "高一",
+      options: ["list", "dict", "classroom", "tuple"],
+      notebook_status: "mastered",
+      review_count: 1,
+      timestamp: "2026-04-27 13:50:00",
+      last_reviewed_at: "2026-04-27 13:55:00",
+      mastered_at: "2026-04-27 13:55:00"
+    }
+  ],
+  catalog: {
+    grades: ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级", "初一", "初二", "初三", "高一", "高二", "高三", "大学"],
+    question_types: ["单选", "多选", "判断", "简答"],
+    subjects_by_grade: {
+      "小学一年级": ["语文", "数学"],
+      "小学二年级": ["语文", "数学"],
+      "小学三年级": ["语文", "数学", "英语", "科学"],
+      "小学四年级": ["语文", "数学", "英语", "科学"],
+      "小学五年级": ["语文", "数学", "英语", "科学"],
+      "小学六年级": ["语文", "数学", "英语", "科学"],
+      "初一": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"],
+      "初二": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"],
+      "初三": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"],
+      "高一": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"],
+      "高二": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"],
+      "高三": ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "Python"],
+      "大学": ["高等数学", "大学英语", "计算机基础", "程序设计", "Python", "经济学"]
+    }
+  }
+};
